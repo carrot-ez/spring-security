@@ -66,3 +66,26 @@ public Object loggingMethods(ProceedingJoinPoint pjp) throws Throwable {
 ```
 
 > Advice 발생 시점을 정의하기 위한 Pointcut Expressiong 참고
+
+## JWT
+
+### dependency
+
+```build.gradle
+implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
+runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.2',
+// Uncomment the next line if you want to use RSASSA-PSS (PS256, PS384, PS512) algorithms:
+//'org.bouncycastle:bcprov-jdk15on:1.60',
+'io.jsonwebtoken:jjwt-jackson:0.11.2' // or 'io.jsonwebtoken:jjwt-gson:0.11.2' for gson
+```
+
+## Error
+
+`HttpMediaTypeNotAcceptableException`
+
+`406 Not Acceptable`
+
+- Response를 위한 Dto 클래스에 `@Getter` 가 없어서 발생
+- `CommonResponse<T>` 클래스에 `@Getter` 붙여 해결함
+
+- Jackson은 내부적으로ObjectMapping API를 사용하여 객체를 json으로 변환하는데, Getter/Setter 가 없으면 Json으로 변환이 불가능하기 때문

@@ -38,6 +38,7 @@ public class SecurityUserDetailsService implements UserDetailsService {
         String username = "carrot";
         String password = "1234";
         String role = "USER";
+        String email = "kian6245@gmail.com";
 
         String encodedPassword = passwordEncoder.encode(password);
 
@@ -45,6 +46,7 @@ public class SecurityUserDetailsService implements UserDetailsService {
                 .username(username)
                 .password(encodedPassword)
                 .role(role)
+                .email(email)
                 .build();
 
         UserEntity entity = userRepository.save(userEntity);
