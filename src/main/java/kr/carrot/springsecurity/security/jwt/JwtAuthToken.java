@@ -2,37 +2,42 @@ package kr.carrot.springsecurity.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SecurityException;
+import kr.carrot.springsecurity.dto.UserDto;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.net.http.HttpHeaders;
 import java.security.Key;
-import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 
 @Slf4j
 public class JwtAuthToken implements AuthToken<Claims> {
 
+    public static final String USERNAME = "username";
     @Getter
     private final String token;
     private final Key key; // java.security.Key
 
-    private static final String AUTORITIES_KEY = "role";
+    private static final String AUTHORITY_ROLE = "role";
 
     public JwtAuthToken(String token, Key key) {
         this.token = token;
         this.key = key;
     }
 
-    public JwtAuthToken(String id, String role, Date expiredDate, Key key) {
+    public JwtAuthToken(UserDto userDto, Date expiredDate, Key key) {
         this.key = key;
-        this.token = createJwtAuthToken(id, role, expiredDate).get();
+        this.token = generateToken(userDto, expiredDate).get();
     }
 
     @Override
     public boolean validate() {
-        return getData() != null;
+
+        Claims claim = getData();
+
+        return claim != null // not null
+                && claim.getExpiration().after(new Date()); // and not expired
     }
 
     @Override
@@ -58,17 +63,28 @@ public class JwtAuthToken implements AuthToken<Claims> {
         return null;
     }
 
-    private Optional<String> createJwtAuthToken(String id, String role, Date expiredDate) {
+    public String getUsername(Claims claims) {
+        return claims.get(USERNAME, String.class);
+    }
+
+    public String[] getRoles(Claims claims) {
+        Role[] roles = claims.get(AUTHORITY_ROLE, Role[].class);
+
+        return Arrays.stream(roles)
+                .map(Role::getCode)
+                .toArray(String[]::new);
+    }
+
+    private Optional<String> generateToken(UserDto userDto, Date expiredDate) {
 
         Date now = new Date();
 
         String compact = Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-                .setIssuer("Carrot")
-                .setSubject(id)
                 .setIssuedAt(now)
                 .setExpiration(expiredDate)
-                .claim(AUTORITIES_KEY, role)
+                .claim(USERNAME, userDto.getUsername())
+                .claim(AUTHORITY_ROLE, userDto.getRoles())
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 

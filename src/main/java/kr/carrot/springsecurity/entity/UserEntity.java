@@ -1,11 +1,15 @@
 package kr.carrot.springsecurity.entity;
 
+import kr.carrot.springsecurity.security.jwt.Role;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Entity
 @Getter
@@ -23,18 +27,26 @@ public class UserEntity {
     @Column(nullable = false, length = 100)
     private String password;
 
-    @Column(nullable = false, length = 50)
-    private String role;
+    @ElementCollection
+    @CollectionTable
+    @Enumerated(EnumType.STRING)
+    private List<Role> roles = new ArrayList<>();
 
     @Column(nullable = false, length = 100)
     private String email;
 
     @Builder
-    private UserEntity(Long id, String username, String password, String role, String email) {
+    private UserEntity(Long id, String username, String password, String email, Role[] roles) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.role = role;
         this.email = email;
+        this.roles = Arrays.asList(roles);
+    }
+
+    public String[] getRoles() {
+        return roles.stream()
+                .map(Role::getCode)
+                .toArray(String[]::new);
     }
 }

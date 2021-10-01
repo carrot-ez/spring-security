@@ -48,7 +48,7 @@ public class SecurityContorller {
         Optional<UserDto> optionalUserDto = userService.login(loginDto.getUsername(), loginDto.getPassword());
 
         if (optionalUserDto.isPresent()) {
-            JwtAuthToken token = (JwtAuthToken) userService.createToken(optionalUserDto.get());
+            JwtAuthToken token = (JwtAuthToken) userService.createAccessToken(optionalUserDto.get());
             return CommonResponse.success(HttpStatus.OK.value(), token.getToken());
         } else {
             throw new LoginFailedException();

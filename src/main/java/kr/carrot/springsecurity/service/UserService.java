@@ -12,11 +12,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -27,13 +27,11 @@ public class UserService {
     private final JwtAuthTokenProvider jwtAuthTokenProvider;
     private final UserRepository userRepository;
 
-    private final static long LOGIN_RETENTION_MINUTES = 30;
+    private final static long ACCESS_TOKEN_VALID_SECOND = 1000L * 30; // 30분
+    private final static long REFRESH_TOKEN_VALID_SECOND = 1000L * 60 * 3; // 3시간
 
+    @Transactional
     public Optional<UserDto> login(String username, String password) {
-
-        // User 정보를 찾을 수 없음
-        userRepository.findByUsername(username)
-                .orElseThrow(() -> new NoSuchElementException("username을 찾을 수 없습니다."));
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
 
@@ -49,16 +47,25 @@ public class UserService {
                 .map(Role::of)
                 .orElse(Role.UNKNOWN);
 
-        UserDto userDto = new UserDto();
-        userDto.setUsername(username);
-        userDto.setRole(role);
+        // create user dto
+        UserDto userDto = UserDto.builder()
+                .username(username)
+                .roles(new Role[]{role})
+                .build();
 
         return Optional.ofNullable(userDto);
     }
 
-    public AuthToken createToken(UserDto userDto) {
+    public AuthToken createAccessToken(UserDto userDto) {
 
-        Date expiredDate = Date.from(LocalDateTime.now().plusMinutes(LOGIN_RETENTION_MINUTES).atZone(ZoneId.systemDefault()).toInstant());
-        return jwtAuthTokenProvider.createAuthToken(userDto.getUsername(), userDto.getRole().getCode(), expiredDate);
+        Date expiredDate = new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_SECOND);
+        return jwtAuthTokenProvider.createAuthToken(userDto, expiredDate);
     }
+
+    public AuthToken createRefreshToken(UserDto userDto) {
+
+        Date expiredDate = new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_SECOND);
+        return jwtAuthTokenProvider.createAuthToken(userDto, expiredDate);
+    }
+
 }

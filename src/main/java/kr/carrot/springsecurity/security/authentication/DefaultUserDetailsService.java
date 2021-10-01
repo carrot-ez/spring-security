@@ -2,6 +2,7 @@ package kr.carrot.springsecurity.security.authentication;
 
 import kr.carrot.springsecurity.entity.UserEntity;
 import kr.carrot.springsecurity.repository.UserRepository;
+import kr.carrot.springsecurity.security.jwt.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,7 +29,7 @@ public class DefaultUserDetailsService implements UserDetailsService {
         return User.builder()
                 .username(userEntity.getUsername())
                 .password(userEntity.getPassword())
-                .roles(userEntity.getRole())
+                .roles(userEntity.getRoles())
                 .build();
     }
 
@@ -45,7 +46,7 @@ public class DefaultUserDetailsService implements UserDetailsService {
         UserEntity userEntity = UserEntity.builder()
                 .username(username)
                 .password(encodedPassword)
-                .role(role)
+                .roles(new Role[] {Role.USER, Role.UNKNOWN})
                 .email(email)
                 .build();
 

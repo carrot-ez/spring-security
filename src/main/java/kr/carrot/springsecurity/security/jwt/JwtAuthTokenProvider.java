@@ -3,12 +3,14 @@ package kr.carrot.springsecurity.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import kr.carrot.springsecurity.dto.UserDto;
 import kr.carrot.springsecurity.security.exceptionhandling.TokenValidFailedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.security.Key;
 import java.util.Arrays;
@@ -28,8 +30,8 @@ public class JwtAuthTokenProvider implements AuthTokenProvider<JwtAuthToken> {
     }
 
     @Override
-    public JwtAuthToken createAuthToken(String id, String role, Date expiredDate) {
-        return new JwtAuthToken(id, role, expiredDate, key);
+    public JwtAuthToken createAuthToken(UserDto userDto, Date expiredDate) {
+        return new JwtAuthToken(userDto, expiredDate, key);
     }
 
     @Override
@@ -44,13 +46,15 @@ public class JwtAuthTokenProvider implements AuthTokenProvider<JwtAuthToken> {
             throw new TokenValidFailedException();
         }
 
+        // get claims
         Claims claims = authToken.getData();
-        List<SimpleGrantedAuthority> authorities = Arrays.stream(new String[]{claims.get(AUTHORITY_ROLE).toString()})
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
 
-        User principal = new User(claims.getSubject(), "", authorities);
+        // build UserDetails
+        UserDetails principal = User.builder()
+                .username(authToken.getUsername(claims))
+                .roles(authToken.getRoles(claims))
+                .build();
 
-        return new UsernamePasswordAuthenticationToken(principal, authToken, authorities);
+        return new UsernamePasswordAuthenticationToken(principal, authToken);
     }
 }
