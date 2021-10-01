@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class JwtAuthTokenProvider implements AuthTokenProvider<JwtAuthToken> {
 
     private final Key key;
-    private static final String AUTHORITIES_KEY = "role";
+    private static final String AUTHORITY_ROLE = "role";
 
     public JwtAuthTokenProvider(String base64Secret) {
         byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
@@ -45,7 +45,7 @@ public class JwtAuthTokenProvider implements AuthTokenProvider<JwtAuthToken> {
         }
 
         Claims claims = authToken.getData();
-        List<SimpleGrantedAuthority> authorities = Arrays.stream(new String[]{claims.get(AUTHORITIES_KEY).toString()})
+        List<SimpleGrantedAuthority> authorities = Arrays.stream(new String[]{claims.get(AUTHORITY_ROLE).toString()})
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 

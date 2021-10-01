@@ -1,12 +1,10 @@
-package kr.carrot.springsecurity.security.service;
+package kr.carrot.springsecurity.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.carrot.springsecurity.security.dto.UserDto;
-import kr.carrot.springsecurity.security.entity.UserEntity;
+import kr.carrot.springsecurity.dto.UserDto;
 import kr.carrot.springsecurity.security.jwt.AuthToken;
 import kr.carrot.springsecurity.security.jwt.JwtAuthTokenProvider;
 import kr.carrot.springsecurity.security.jwt.Role;
-import kr.carrot.springsecurity.security.repository.UserRepository;
+import kr.carrot.springsecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -18,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -31,6 +30,10 @@ public class UserService {
     private final static long LOGIN_RETENTION_MINUTES = 30;
 
     public Optional<UserDto> login(String username, String password) {
+
+        // User 정보를 찾을 수 없음
+        userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("username을 찾을 수 없습니다."));
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
 

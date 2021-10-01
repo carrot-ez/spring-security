@@ -1,13 +1,12 @@
-package kr.carrot.springsecurity.security.controller;
+package kr.carrot.springsecurity.controller;
 
 import kr.carrot.springsecurity.common.CommonResponse;
-import kr.carrot.springsecurity.security.dto.LoginDto;
-import kr.carrot.springsecurity.security.dto.UserDto;
+import kr.carrot.springsecurity.dto.LoginDto;
+import kr.carrot.springsecurity.dto.UserDto;
 import kr.carrot.springsecurity.security.exceptionhandling.LoginFailedException;
-import kr.carrot.springsecurity.security.jwt.AuthToken;
 import kr.carrot.springsecurity.security.jwt.JwtAuthToken;
-import kr.carrot.springsecurity.security.service.SecurityUserDetailsService;
-import kr.carrot.springsecurity.security.service.UserService;
+import kr.carrot.springsecurity.security.authentication.DefaultUserDetailsService;
+import kr.carrot.springsecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,7 +22,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SecurityContorller {
 
-    private final SecurityUserDetailsService securityUserDetailsService;
+    private final DefaultUserDetailsService defaultUserDetailsService;
     private final UserService userService;
 
     @GetMapping("/")
@@ -36,7 +35,9 @@ public class SecurityContorller {
     @GetMapping("/test")
     public String test() {
 
-        Long id = securityUserDetailsService.createTestData();
+        log.info("test");
+
+        Long id = defaultUserDetailsService.createTestData();
 
         return "test-page: " + "create success, id = " + id;
     }
@@ -48,10 +49,14 @@ public class SecurityContorller {
 
         if (optionalUserDto.isPresent()) {
             JwtAuthToken token = (JwtAuthToken) userService.createToken(optionalUserDto.get());
-
             return CommonResponse.success(HttpStatus.OK.value(), token.getToken());
         } else {
             throw new LoginFailedException();
         }
+    }
+
+    @GetMapping("/validate")
+    public String validate() {
+        return "success";
     }
 }

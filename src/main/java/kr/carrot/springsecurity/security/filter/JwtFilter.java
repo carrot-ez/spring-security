@@ -3,23 +3,21 @@ package kr.carrot.springsecurity.security.filter;
 import kr.carrot.springsecurity.security.jwt.JwtAuthToken;
 import kr.carrot.springsecurity.security.jwt.JwtAuthTokenProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
 @Slf4j
-public class JwtFilter extends GenericFilterBean {
-
-    private static final String AUTHORIZATION_HEADER = "x-auth-token";
+public class JwtFilter extends OncePerRequestFilter {
 
     private JwtAuthTokenProvider jwtAuthTokenProvider;
 
@@ -27,11 +25,11 @@ public class JwtFilter extends GenericFilterBean {
         this.jwtAuthTokenProvider = jwtAuthTokenProvider;
     }
 
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
-        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        Optional<String> token = resolveToken(httpServletRequest);
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+
+        Optional<String> token = resolveToken(request);
 
         if (token.isPresent()) {
             JwtAuthToken jwtAuthToken = jwtAuthTokenProvider.convertAuthToken(token.get());
@@ -44,9 +42,10 @@ public class JwtFilter extends GenericFilterBean {
 
         chain.doFilter(request, response);
     }
-
+    
     private Optional<String> resolveToken(HttpServletRequest request) {
-        String authToken = request.getHeader(AUTHORIZATION_HEADER);
+
+        String authToken = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (StringUtils.hasText(authToken)) {
             return Optional.of(authToken);

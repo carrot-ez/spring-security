@@ -1,7 +1,7 @@
-package kr.carrot.springsecurity.security.service;
+package kr.carrot.springsecurity.security.authentication;
 
-import kr.carrot.springsecurity.security.entity.UserEntity;
-import kr.carrot.springsecurity.security.repository.UserRepository;
+import kr.carrot.springsecurity.entity.UserEntity;
+import kr.carrot.springsecurity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class SecurityUserDetailsService implements UserDetailsService {
+public class DefaultUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

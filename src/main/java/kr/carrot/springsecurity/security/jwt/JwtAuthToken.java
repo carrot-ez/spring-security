@@ -5,7 +5,9 @@ import io.jsonwebtoken.security.SecurityException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.http.HttpHeaders;
 import java.security.Key;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 
@@ -36,7 +38,12 @@ public class JwtAuthToken implements AuthToken<Claims> {
     @Override
     public Claims getData() {
         try {
-            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+
         }catch (SecurityException e) {
             log.info("Invalid JWT signature.");
         } catch (MalformedJwtException e) {
@@ -53,11 +60,16 @@ public class JwtAuthToken implements AuthToken<Claims> {
 
     private Optional<String> createJwtAuthToken(String id, String role, Date expiredDate) {
 
+        Date now = new Date();
+
         String compact = Jwts.builder()
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .setIssuer("Carrot")
                 .setSubject(id)
+                .setIssuedAt(now)
+                .setExpiration(expiredDate)
                 .claim(AUTORITIES_KEY, role)
                 .signWith(key, SignatureAlgorithm.HS256)
-                .setExpiration(expiredDate)
                 .compact();
 
         return Optional.ofNullable(compact);

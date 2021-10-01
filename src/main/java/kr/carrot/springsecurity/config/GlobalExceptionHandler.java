@@ -5,12 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.NoSuchElementException;
 
 @Slf4j
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     /**
@@ -18,20 +20,31 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected CommonResponse<?> handleBadCredentialException(BadCredentialsException e) {
-        log.info("handleBadCredentialException", e);
+    public CommonResponse<Object> handleBadCredentialException(BadCredentialsException e) {
+        log.error("handleBadCredentialException", e);
 
         return CommonResponse.error(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
     }
 
     /**
-     * 토큰 만료시간 경과
+     * 인증 실패
      */
     @ExceptionHandler(InsufficientAuthenticationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    protected CommonResponse<?> handleInsufficientAuthenticationException(InsufficientAuthenticationException e) {
-        log.info("handleInsufficientAuthenticationException", e);
+    public CommonResponse<Object> handleInsufficientAuthenticationException(InsufficientAuthenticationException e) {
+        log.error("handleInsufficientAuthenticationException", e);
 
         return CommonResponse.error(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+    }
+
+    /**
+     * 입력 값을 찾을 수 없음
+     */
+    @ExceptionHandler(NoSuchElementException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public CommonResponse<Object> handleNoSuchElementException(NoSuchElementException e) {
+        log.error("handleNoSuchElementException", e);
+
+        return CommonResponse.error(HttpStatus.BAD_REQUEST.value(), e.getMessage());
     }
 }
