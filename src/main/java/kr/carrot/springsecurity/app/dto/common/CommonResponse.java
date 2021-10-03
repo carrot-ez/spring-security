@@ -1,4 +1,4 @@
-package kr.carrot.springsecurity.common;
+package kr.carrot.springsecurity.app.dto.common;
 
 import lombok.Getter;
 

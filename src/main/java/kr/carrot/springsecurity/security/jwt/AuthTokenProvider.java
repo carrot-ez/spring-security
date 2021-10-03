@@ -1,6 +1,6 @@
 package kr.carrot.springsecurity.security.jwt;
 
-import kr.carrot.springsecurity.dto.UserDto;
+import kr.carrot.springsecurity.app.dto.UserDto;
 import org.springframework.security.core.Authentication;
 
 import java.util.Date;

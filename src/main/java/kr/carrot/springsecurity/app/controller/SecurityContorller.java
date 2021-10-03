@@ -1,12 +1,12 @@
-package kr.carrot.springsecurity.controller;
+package kr.carrot.springsecurity.app.controller;
 
-import kr.carrot.springsecurity.common.CommonResponse;
-import kr.carrot.springsecurity.dto.LoginDto;
-import kr.carrot.springsecurity.dto.UserDto;
+import kr.carrot.springsecurity.app.dto.common.CommonResponse;
+import kr.carrot.springsecurity.app.dto.LoginDto;
+import kr.carrot.springsecurity.app.dto.UserDto;
 import kr.carrot.springsecurity.security.exceptionhandling.LoginFailedException;
 import kr.carrot.springsecurity.security.jwt.JwtAuthToken;
 import kr.carrot.springsecurity.security.authentication.DefaultUserDetailsService;
-import kr.carrot.springsecurity.service.UserService;
+import kr.carrot.springsecurity.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

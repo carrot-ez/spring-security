@@ -1,6 +1,6 @@
-package kr.carrot.springsecurity.repository;
+package kr.carrot.springsecurity.app.repository;
 
-import kr.carrot.springsecurity.entity.UserEntity;
+import kr.carrot.springsecurity.app.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

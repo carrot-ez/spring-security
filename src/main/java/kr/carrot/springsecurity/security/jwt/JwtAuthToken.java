@@ -2,7 +2,7 @@ package kr.carrot.springsecurity.security.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SecurityException;
-import kr.carrot.springsecurity.dto.UserDto;
+import kr.carrot.springsecurity.app.dto.UserDto;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

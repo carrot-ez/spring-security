@@ -1,4 +1,4 @@
-package kr.carrot.springsecurity.dto;
+package kr.carrot.springsecurity.app.dto;
 
 import lombok.Data;
 

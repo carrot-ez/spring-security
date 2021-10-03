@@ -1,4 +1,4 @@
-package kr.carrot.springsecurity.dto;
+package kr.carrot.springsecurity.app.dto;
 
 import kr.carrot.springsecurity.security.jwt.Role;
 import lombok.AccessLevel;

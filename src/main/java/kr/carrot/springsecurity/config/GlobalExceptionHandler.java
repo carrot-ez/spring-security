@@ -1,6 +1,6 @@
 package kr.carrot.springsecurity.config;
 
-import kr.carrot.springsecurity.common.CommonResponse;
+import kr.carrot.springsecurity.app.dto.common.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;

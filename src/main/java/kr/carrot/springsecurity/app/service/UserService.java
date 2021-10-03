@@ -1,10 +1,10 @@
-package kr.carrot.springsecurity.service;
+package kr.carrot.springsecurity.app.service;
 
-import kr.carrot.springsecurity.dto.UserDto;
+import kr.carrot.springsecurity.app.dto.UserDto;
 import kr.carrot.springsecurity.security.jwt.AuthToken;
 import kr.carrot.springsecurity.security.jwt.JwtAuthTokenProvider;
 import kr.carrot.springsecurity.security.jwt.Role;
-import kr.carrot.springsecurity.repository.UserRepository;
+import kr.carrot.springsecurity.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -14,8 +14,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 

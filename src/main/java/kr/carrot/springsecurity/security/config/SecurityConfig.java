@@ -1,15 +1,17 @@
 package kr.carrot.springsecurity.security.config;
 
-import kr.carrot.springsecurity.security.authentication.DefaultUserDetailsService;
-import kr.carrot.springsecurity.security.exceptionhandling.JwtAccessDeniedHandler;
-import kr.carrot.springsecurity.security.exceptionhandling.JwtAuthenticationEntryPoint;
+import kr.carrot.springsecurity.security.filter.JwtAccessDeniedHandler;
+import kr.carrot.springsecurity.security.filter.JwtAuthenticationEntryPoint;
 import kr.carrot.springsecurity.security.jwt.JwtAuthTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -19,10 +21,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/", "/api/v1/login", "/test"
     };
 
-    private final DefaultUserDetailsService defaultUserDetailsService;
     private final JwtAuthTokenProvider jwtAuthTokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
 
     /* ==================== CONFIG  ==================== */
     @Override

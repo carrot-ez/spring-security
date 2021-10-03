@@ -1,6 +1,6 @@
-package kr.carrot.springsecurity.repository;
+package kr.carrot.springsecurity.app.repository;
 
-import kr.carrot.springsecurity.entity.UserEntity;
+import kr.carrot.springsecurity.app.entity.UserEntity;
 import kr.carrot.springsecurity.security.jwt.Role;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

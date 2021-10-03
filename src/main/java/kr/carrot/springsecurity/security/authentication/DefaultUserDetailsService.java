@@ -1,7 +1,7 @@
 package kr.carrot.springsecurity.security.authentication;
 
-import kr.carrot.springsecurity.entity.UserEntity;
-import kr.carrot.springsecurity.repository.UserRepository;
+import kr.carrot.springsecurity.app.entity.UserEntity;
+import kr.carrot.springsecurity.app.repository.UserRepository;
 import kr.carrot.springsecurity.security.jwt.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;

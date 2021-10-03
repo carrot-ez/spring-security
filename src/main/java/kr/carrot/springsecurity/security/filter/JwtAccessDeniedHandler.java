@@ -1,4 +1,4 @@
-package kr.carrot.springsecurity.security.exceptionhandling;
+package kr.carrot.springsecurity.security.filter;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
