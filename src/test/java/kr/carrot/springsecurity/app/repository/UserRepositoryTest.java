@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.Date;
 
 @SpringBootTest
 public class UserRepositoryTest {
@@ -32,6 +33,14 @@ public class UserRepositoryTest {
 
         em.flush();
 
+    }
+
+    @Test
+    public void test_2() {
+        long ext = 1000L * 60 * 30;
+        Date date = new Date(System.currentTimeMillis() + ext);
+
+        System.out.println("date = " + date);
     }
 
 }
