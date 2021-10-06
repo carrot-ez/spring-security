@@ -3,6 +3,7 @@ package kr.carrot.springsecurity.app.controller;
 import kr.carrot.springsecurity.app.dto.common.CommonResponse;
 import kr.carrot.springsecurity.app.dto.LoginDto;
 import kr.carrot.springsecurity.app.dto.UserDto;
+import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.security.exceptionhandling.LoginFailedException;
 import kr.carrot.springsecurity.security.jwt.JwtAuthToken;
 import kr.carrot.springsecurity.security.authentication.DefaultUserDetailsService;
@@ -20,7 +21,7 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class SecurityContorller {
+public class UserController {
 
     private final DefaultUserDetailsService defaultUserDetailsService;
     private final UserService userService;
@@ -45,14 +46,11 @@ public class SecurityContorller {
     @PostMapping("/api/v1/login")
     public CommonResponse<?> login(@RequestBody LoginDto loginDto) {
 
-        Optional<UserDto> optionalUserDto = userService.login(loginDto.getUsername(), loginDto.getPassword());
+        // TODO: change service param
+        // TODO: add global exception handling
+        TokenResponseDto tokens = userService.login(loginDto.getUsername(), loginDto.getPassword());
 
-        if (optionalUserDto.isPresent()) {
-            JwtAuthToken token = (JwtAuthToken) userService.createAccessToken(optionalUserDto.get());
-            return CommonResponse.success(HttpStatus.OK.value(), token.getToken());
-        } else {
-            throw new LoginFailedException();
-        }
+        return CommonResponse.success(HttpStatus.OK.value(), tokens);
     }
 
     @GetMapping("/validate")

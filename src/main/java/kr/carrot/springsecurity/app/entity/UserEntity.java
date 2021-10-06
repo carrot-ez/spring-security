@@ -49,4 +49,8 @@ public class UserEntity {
                 .map(Role::getCode)
                 .toArray(String[]::new);
     }
+
+    public boolean verifyPassword(String encryptedPassword) {
+        return this.password.equals(encryptedPassword);
+    }
 }

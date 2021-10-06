@@ -26,8 +26,8 @@ public class JwtAuthTokenProvider implements AuthTokenProvider<JwtAuthToken> {
     }
 
     @Override
-    public JwtAuthToken createAuthToken(UserDto userDto, Date expiredDate) {
-        return new JwtAuthToken(userDto, expiredDate, key);
+    public JwtAuthToken createAuthToken(String username, String[] roles, Date expiredDate) {
+        return new JwtAuthToken(username, roles, expiredDate, key);
     }
 
     @Override

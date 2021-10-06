@@ -15,7 +15,7 @@ import java.util.Optional;
 public class JwtAuthToken implements AuthToken<Claims> {
 
     public static final String USERNAME = "username";
-    @Getter
+
     private final String token;
     private final Key key; // java.security.Key
 
@@ -26,9 +26,9 @@ public class JwtAuthToken implements AuthToken<Claims> {
         this.key = key;
     }
 
-    public JwtAuthToken(UserDto userDto, Date expiredDate, Key key) {
+    public JwtAuthToken(String username, String[] roles, Date expiredDate, Key key) {
         this.key = key;
-        this.token = generateToken(userDto, expiredDate).get();
+        this.token = generateToken(username, roles, expiredDate).get();
     }
 
     @Override
@@ -63,19 +63,20 @@ public class JwtAuthToken implements AuthToken<Claims> {
         return null;
     }
 
+    @Override
+    public String getToken() {
+        return this.token;
+    }
+
     public String getUsername(Claims claims) {
         return claims.get(USERNAME, String.class);
     }
 
     public String[] getRoles(Claims claims) {
-        Role[] roles = claims.get(AUTHORITY_ROLE, Role[].class);
-
-        return Arrays.stream(roles)
-                .map(Role::getCode)
-                .toArray(String[]::new);
+        return claims.get(AUTHORITY_ROLE, String[].class);
     }
 
-    private Optional<String> generateToken(UserDto userDto, Date expiredDate) {
+    private Optional<String> generateToken(String username, String[] roles, Date expiredDate) {
 
         Date now = new Date();
 
@@ -83,8 +84,8 @@ public class JwtAuthToken implements AuthToken<Claims> {
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuedAt(now)
                 .setExpiration(expiredDate)
-                .claim(USERNAME, userDto.getUsername())
-                .claim(AUTHORITY_ROLE, userDto.getRoles())
+                .claim(USERNAME, username)
+                .claim(AUTHORITY_ROLE, roles)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 

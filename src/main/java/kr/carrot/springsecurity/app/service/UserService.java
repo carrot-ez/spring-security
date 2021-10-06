@@ -1,6 +1,9 @@
 package kr.carrot.springsecurity.app.service;
 
 import kr.carrot.springsecurity.app.dto.UserDto;
+import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
+import kr.carrot.springsecurity.app.entity.UserEntity;
+import kr.carrot.springsecurity.security.exceptionhandling.PasswordIncorrectException;
 import kr.carrot.springsecurity.security.jwt.AuthToken;
 import kr.carrot.springsecurity.security.jwt.JwtAuthTokenProvider;
 import kr.carrot.springsecurity.security.jwt.Role;
@@ -11,6 +14,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +26,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final PasswordEncoder passwordEncoder;
     private final JwtAuthTokenProvider jwtAuthTokenProvider;
     private final UserRepository userRepository;
 
@@ -29,41 +34,32 @@ public class UserService {
     private final static long REFRESH_TOKEN_VALID_TIME = 1000L * 60 * 60 * 3; // 3시간
 
     @Transactional
-    public Optional<UserDto> login(String username, String password) {
+    public TokenResponseDto login(String username, String password) {
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+        UserEntity userEntity = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("username not found"));
 
-        // check password
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        String encryptedPassword = passwordEncoder.encode(userEntity.getPassword());
+        if (!userEntity.verifyPassword(encryptedPassword)) {
+            // password 불일치
+            throw new PasswordIncorrectException("password incorrect");
+        }
 
-        // login success
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String accessToken = createAccessToken(userEntity.getUsername(), userEntity.getRoles()).getToken();
+        String refreshToken = createRefreshToken(userEntity.getUsername(), userEntity.getRoles()).getToken();
 
-        Role role = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .findFirst()
-                .map(Role::of)
-                .orElse(Role.UNKNOWN);
-
-        // create user dto
-        UserDto userDto = UserDto.builder()
-                .username(username)
-                .roles(new Role[]{role})
-                .build();
-
-        return Optional.ofNullable(userDto);
+        return new TokenResponseDto(accessToken, refreshToken);
     }
 
-    public AuthToken createAccessToken(UserDto userDto) {
+    private AuthToken createAccessToken(String username, String[] roles) {
 
         Date expiredDate = new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_TIME);
-        return jwtAuthTokenProvider.createAuthToken(userDto, expiredDate);
+        return jwtAuthTokenProvider.createAuthToken(username, roles, expiredDate);
     }
 
-    public AuthToken createRefreshToken(UserDto userDto) {
+    public AuthToken createRefreshToken(String username, String[] roles) {
 
         Date expiredDate = new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME);
-        return jwtAuthTokenProvider.createAuthToken(userDto, expiredDate);
+        return jwtAuthTokenProvider.createAuthToken(username, roles, expiredDate);
     }
 
 }
