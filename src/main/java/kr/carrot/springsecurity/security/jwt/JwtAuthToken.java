@@ -3,13 +3,17 @@ package kr.carrot.springsecurity.security.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SecurityException;
 import kr.carrot.springsecurity.app.dto.UserDto;
+import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.ParameterizedTypeReference;
 
 import java.security.Key;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Slf4j
 public class JwtAuthToken implements AuthToken<Claims> {
@@ -73,7 +77,10 @@ public class JwtAuthToken implements AuthToken<Claims> {
     }
 
     public String[] getRoles(Claims claims) {
-        return claims.get(AUTHORITY_ROLE, String[].class);
+
+        return Arrays.stream(claims.get(AUTHORITY_ROLE, ArrayList.class).toArray())
+                .map(Object::toString)
+                .toArray(String[]::new);
     }
 
     private Optional<String> generateToken(String username, String[] roles, Date expiredDate) {

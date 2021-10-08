@@ -48,6 +48,7 @@ public class JwtAuthTokenProvider implements AuthTokenProvider<JwtAuthToken> {
         // build UserDetails
         UserDetails principal = User.builder()
                 .username(authToken.getUsername(claims))
+                .password("")
                 .authorities(authToken.getRoles(claims))
                 .build();
 

@@ -36,14 +36,16 @@ public class UserService {
     @Transactional
     public TokenResponseDto login(String username, String password) {
 
+        // find user
         UserEntity userEntity = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("username not found"));
 
-        String encryptedPassword = passwordEncoder.encode(userEntity.getPassword());
-        if (!userEntity.verifyPassword(encryptedPassword)) {
+        // check password
+        if (!passwordEncoder.matches(password, userEntity.getPassword())) {
             // password 불일치
             throw new PasswordIncorrectException("password incorrect");
         }
 
+        // generate tokens
         String accessToken = createAccessToken(userEntity.getUsername(), userEntity.getRoles()).getToken();
         String refreshToken = createRefreshToken(userEntity.getUsername(), userEntity.getRoles()).getToken();
 
