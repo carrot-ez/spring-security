@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DefaultUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -31,27 +30,5 @@ public class DefaultUserDetailsService implements UserDetailsService {
                 .password(userEntity.getPassword())
                 .authorities(userEntity.getRoles())
                 .build();
-    }
-
-    // TODO: DELETE TEST METHOD
-    public Long createTestData() {
-
-        String username = "carrot";
-        String password = "1234";
-        String role = "USER";
-        String email = "kian6245@gmail.com";
-
-        String encodedPassword = passwordEncoder.encode(password);
-
-        UserEntity userEntity = UserEntity.builder()
-                .username(username)
-                .password(encodedPassword)
-                .roles(new Role[] {Role.USER, Role.UNKNOWN})
-                .email(email)
-                .build();
-
-        UserEntity entity = userRepository.save(userEntity);
-
-        return entity.getId();
     }
 }

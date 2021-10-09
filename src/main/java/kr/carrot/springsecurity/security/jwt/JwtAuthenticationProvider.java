@@ -4,25 +4,31 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import kr.carrot.springsecurity.app.dto.UserDto;
+import kr.carrot.springsecurity.security.authentication.DefaultUserDetailsService;
 import kr.carrot.springsecurity.security.exceptionhandling.TokenValidFailedException;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.security.Key;
 import java.util.Date;
 
 @Slf4j
-public class JwtAuthTokenProvider implements AuthTokenProvider<JwtAuthToken> {
+public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken> {
 
-    private final Key key;
     private static final String AUTHORITY_ROLE = "role";
 
-    public JwtAuthTokenProvider(String base64Secret) {
+    private final Key key;
+    private final UserDetailsService userDetailsService;
+
+    public JwtAuthenticationProvider(String base64Secret, UserDetailsService userDetailsService) {
         byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
@@ -42,16 +48,14 @@ public class JwtAuthTokenProvider implements AuthTokenProvider<JwtAuthToken> {
             throw new TokenValidFailedException();
         }
 
-        // get claims
+        // get user details
         Claims claims = authToken.getData();
+        String username = authToken.getUsername(claims);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-        // build UserDetails
-        UserDetails principal = User.builder()
-                .username(authToken.getUsername(claims))
-                .password("")
-                .authorities(authToken.getRoles(claims))
-                .build();
-
-        return new UsernamePasswordAuthenticationToken(principal, authToken);
+        // set authentication true
+        // authentication manager 또는 authentication provider에서 충분한 인증/인가가 이루어졌을때만 사용해야 하는 생성자.
+        // method desc 참고
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 }

@@ -2,11 +2,7 @@ package kr.carrot.springsecurity.app.controller;
 
 import kr.carrot.springsecurity.app.dto.common.CommonResponse;
 import kr.carrot.springsecurity.app.dto.LoginDto;
-import kr.carrot.springsecurity.app.dto.UserDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
-import kr.carrot.springsecurity.security.exceptionhandling.LoginFailedException;
-import kr.carrot.springsecurity.security.jwt.JwtAuthToken;
-import kr.carrot.springsecurity.security.authentication.DefaultUserDetailsService;
 import kr.carrot.springsecurity.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,14 +12,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @Slf4j
 @RestController
 @RequiredArgsConstructor
 public class UserController {
 
-    private final DefaultUserDetailsService defaultUserDetailsService;
     private final UserService userService;
 
     @GetMapping("/")
@@ -38,7 +31,7 @@ public class UserController {
 
         log.info("test");
 
-        Long id = defaultUserDetailsService.createTestData();
+        Long id = userService.createTestData();
 
         return "test-page: " + "create success, id = " + id;
     }

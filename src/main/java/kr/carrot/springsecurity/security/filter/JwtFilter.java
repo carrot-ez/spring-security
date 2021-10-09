@@ -1,7 +1,7 @@
 package kr.carrot.springsecurity.security.filter;
 
 import kr.carrot.springsecurity.security.jwt.JwtAuthToken;
-import kr.carrot.springsecurity.security.jwt.JwtAuthTokenProvider;
+import kr.carrot.springsecurity.security.jwt.JwtAuthenticationProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
@@ -19,9 +19,9 @@ import java.util.Optional;
 @Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
-    private JwtAuthTokenProvider jwtAuthTokenProvider;
+    private JwtAuthenticationProvider jwtAuthTokenProvider;
 
-    public JwtFilter(JwtAuthTokenProvider jwtAuthTokenProvider) {
+    public JwtFilter(JwtAuthenticationProvider jwtAuthTokenProvider) {
         this.jwtAuthTokenProvider = jwtAuthTokenProvider;
     }
 
