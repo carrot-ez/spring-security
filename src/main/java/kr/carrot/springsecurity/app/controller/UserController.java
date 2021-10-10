@@ -39,10 +39,8 @@ public class UserController {
     @PostMapping("/api/v1/login")
     public CommonResponse<?> login(@RequestBody LoginDto loginDto) {
 
-        // TODO: change service param
-        // TODO: add global exception handling
-        TokenResponseDto tokens = userService.login(loginDto.getUsername(), loginDto.getPassword());
-
+        TokenResponseDto tokens = userService.login(loginDto);
+        
         return CommonResponse.success(HttpStatus.OK.value(), tokens);
     }
 

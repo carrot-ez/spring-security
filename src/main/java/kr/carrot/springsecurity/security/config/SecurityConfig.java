@@ -31,6 +31,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+    private JwtConfigurer jwtConfigurer() {
+        return new JwtConfigurer(jwtAuthTokenProvider);
+    }
 
     /* ==================== CONFIG  ==================== */
     @Override
@@ -74,8 +77,4 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /* ==================== CONFIG  ==================== */
-
-    private JwtConfigurer jwtConfigurer() {
-        return new JwtConfigurer(jwtAuthTokenProvider);
-    }
 }

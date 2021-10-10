@@ -1,8 +1,9 @@
 package kr.carrot.springsecurity.app.service;
 
+import kr.carrot.springsecurity.app.dto.LoginDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.entity.UserEntity;
-import kr.carrot.springsecurity.security.exceptionhandling.PasswordIncorrectException;
+import kr.carrot.springsecurity.security.exception.PasswordIncorrectException;
 import kr.carrot.springsecurity.security.jwt.AuthToken;
 import kr.carrot.springsecurity.security.jwt.JwtAuthenticationProvider;
 import kr.carrot.springsecurity.security.jwt.Role;
@@ -49,7 +50,11 @@ public class UserService {
     }
 
     @Transactional
-    public TokenResponseDto login(String username, String password) {
+    public TokenResponseDto login(LoginDto loginDto) {
+
+        // get username, password
+        String username = loginDto.getUsername();
+        String password = loginDto.getPassword();
 
         // find user
         UserEntity userEntity = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("username not found"));

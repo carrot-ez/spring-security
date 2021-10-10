@@ -1,4 +1,4 @@
-package kr.carrot.springsecurity.security.exceptionhandling;
+package kr.carrot.springsecurity.security.exception;
 
 import lombok.Getter;
 

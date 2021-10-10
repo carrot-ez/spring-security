@@ -3,14 +3,10 @@ package kr.carrot.springsecurity.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import kr.carrot.springsecurity.app.dto.UserDto;
-import kr.carrot.springsecurity.security.authentication.DefaultUserDetailsService;
-import kr.carrot.springsecurity.security.exceptionhandling.TokenValidFailedException;
-import lombok.Value;
+import kr.carrot.springsecurity.security.exception.InvalidJwtTokenException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -45,7 +41,7 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
     public Authentication getAuthentication(JwtAuthToken authToken) {
 
         if(!authToken.validate()) {
-            throw new TokenValidFailedException();
+            throw new InvalidJwtTokenException();
         }
 
         // get user details
