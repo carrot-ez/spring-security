@@ -20,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] PUBLIC_URLS = {
-            "/", "/api/v1/login", "/test"
+            "/", "/api/v1/login", "/test", "/api/v1/token"
     };
 
     private final JwtAuthenticationProvider jwtAuthTokenProvider;

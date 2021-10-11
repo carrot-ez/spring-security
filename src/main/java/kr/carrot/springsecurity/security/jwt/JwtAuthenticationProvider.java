@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import kr.carrot.springsecurity.security.exception.InvalidJwtTokenException;
+import kr.carrot.springsecurity.security.exception.JwtTokenTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +18,8 @@ import java.util.Date;
 public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken> {
 
     private static final String AUTHORITY_ROLE = "role";
+    private final static long ACCESS_TOKEN_VALID_TIME = 1000L * 60 * 30; // 30분
+    private final static long REFRESH_TOKEN_VALID_TIME = 1000L * 60 * 60 * 3; // 3시간
 
     private final Key key;
     private final UserDetailsService userDetailsService;
@@ -28,8 +31,19 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
     }
 
     @Override
-    public JwtAuthToken createAuthToken(String username, String[] roles, Date expiredDate) {
-        return new JwtAuthToken(username, roles, expiredDate, key);
+    public JwtAuthToken createAuthToken(String username, String[] roles, TokenType tokenType) {
+
+        if (tokenType == TokenType.ACCESS_TOKEN) {
+            Date expiredDate = new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_TIME);
+            return new JwtAuthToken(username, roles, expiredDate, key);
+        } //
+        else if (tokenType == TokenType.REFRESH_TOKEN) {
+            Date expiredDate = new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME);
+            return new JwtAuthToken(username, roles, expiredDate, key);
+        } //
+        else {
+            throw new JwtTokenTypeException();
+        }
     }
 
     @Override

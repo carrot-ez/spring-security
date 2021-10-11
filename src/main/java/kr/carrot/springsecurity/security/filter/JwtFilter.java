@@ -2,6 +2,7 @@ package kr.carrot.springsecurity.security.filter;
 
 import kr.carrot.springsecurity.security.jwt.JwtAuthToken;
 import kr.carrot.springsecurity.security.jwt.JwtAuthenticationProvider;
+import kr.carrot.springsecurity.security.jwt.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
@@ -29,7 +30,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
 
-        Optional<String> token = resolveToken(request);
+        Optional<String> token = JwtUtils.resolveToken(request, HttpHeaders.AUTHORIZATION);
 
         if (token.isPresent()) {
             JwtAuthToken jwtAuthToken = jwtAuthTokenProvider.convertAuthToken(token.get());
@@ -41,16 +42,5 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         chain.doFilter(request, response);
-    }
-    
-    private Optional<String> resolveToken(HttpServletRequest request) {
-
-        String authToken = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (StringUtils.hasText(authToken)) {
-            return Optional.of(authToken);
-        } else {
-            return Optional.empty();
-        }
     }
 }

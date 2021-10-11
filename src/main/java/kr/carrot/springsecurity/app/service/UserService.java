@@ -2,12 +2,15 @@ package kr.carrot.springsecurity.app.service;
 
 import kr.carrot.springsecurity.app.dto.LoginDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
+import kr.carrot.springsecurity.app.entity.TokenEntity;
 import kr.carrot.springsecurity.app.entity.UserEntity;
+import kr.carrot.springsecurity.app.repository.TokenRepository;
 import kr.carrot.springsecurity.security.exception.PasswordIncorrectException;
 import kr.carrot.springsecurity.security.jwt.AuthToken;
 import kr.carrot.springsecurity.security.jwt.JwtAuthenticationProvider;
 import kr.carrot.springsecurity.security.jwt.Role;
 import kr.carrot.springsecurity.app.repository.UserRepository;
+import kr.carrot.springsecurity.security.jwt.TokenType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +27,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthenticationProvider jwtAuthTokenProvider;
     private final UserRepository userRepository;
-
-    private final static long ACCESS_TOKEN_VALID_TIME = 1000L * 60 * 30; // 30분
-    private final static long REFRESH_TOKEN_VALID_TIME = 1000L * 60 * 60 * 3; // 3시간
+    private final TokenRepository tokenRepository;
 
     // TODO: DELETE TEST METHOD
     public Long createTestData() {
@@ -66,22 +68,26 @@ public class UserService {
         }
 
         // generate tokens
-        String accessToken = createAccessToken(userEntity.getUsername(), userEntity.getRoles()).getToken();
-        String refreshToken = createRefreshToken(userEntity.getUsername(), userEntity.getRoles()).getToken();
+        String accessToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), userEntity.getRoles(), TokenType.ACCESS_TOKEN).getToken();
+        String refreshToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), userEntity.getRoles(), TokenType.REFRESH_TOKEN).getToken();
+
+        // save refresh token
+        TokenEntity tokenEntity = TokenEntity.builder()
+                .refreshToken(refreshToken)
+                .build();
+        tokenRepository.save(tokenEntity);
 
         return new TokenResponseDto(accessToken, refreshToken);
     }
 
-    private AuthToken createAccessToken(String username, String[] roles) {
+    @Transactional
+    public TokenResponseDto refreshingToken(Optional<String> token) {
 
-        Date expiredDate = new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_TIME);
-        return jwtAuthTokenProvider.createAuthToken(username, roles, expiredDate);
+        if (token.isPresent()) {
+            String refreshToken = token.get();
+            TokenEntity tokenEntity = tokenRepository.findByRefreshToken(refreshToken)
+                    .orElseThrow();
+        }
+        return null;
     }
-
-    public AuthToken createRefreshToken(String username, String[] roles) {
-
-        Date expiredDate = new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME);
-        return jwtAuthTokenProvider.createAuthToken(username, roles, expiredDate);
-    }
-
 }

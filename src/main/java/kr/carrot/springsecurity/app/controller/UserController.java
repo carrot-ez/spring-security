@@ -4,13 +4,15 @@ import kr.carrot.springsecurity.app.dto.common.CommonResponse;
 import kr.carrot.springsecurity.app.dto.LoginDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.service.UserService;
+import kr.carrot.springsecurity.security.jwt.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -36,6 +38,12 @@ public class UserController {
         return "test-page: " + "create success, id = " + id;
     }
 
+    @GetMapping("/validate")
+    public String validate() {
+        return "success";
+    }
+
+
     @PostMapping("/api/v1/login")
     public CommonResponse<?> login(@RequestBody LoginDto loginDto) {
 
@@ -44,8 +52,12 @@ public class UserController {
         return CommonResponse.success(HttpStatus.OK.value(), tokens);
     }
 
-    @GetMapping("/validate")
-    public String validate() {
-        return "success";
+    @PostMapping("api/v1/token")
+    public CommonResponse<?> refreshingToken(HttpServletRequest request) {
+
+        Optional<String> token = JwtUtils.resolveToken(request, "X-Refresh-Token");
+        userService.refreshingToken(token);
+
+        return null;
     }
 }
