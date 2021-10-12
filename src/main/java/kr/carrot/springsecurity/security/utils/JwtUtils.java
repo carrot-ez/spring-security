@@ -1,4 +1,4 @@
-package kr.carrot.springsecurity.security.jwt;
+package kr.carrot.springsecurity.security.utils;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;

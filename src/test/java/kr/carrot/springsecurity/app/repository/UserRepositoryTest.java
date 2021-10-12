@@ -26,7 +26,7 @@ public class UserRepositoryTest {
     public void test() {
         UserEntity entity = UserEntity.builder()
                 .username("adf")
-                .roles(new Role[]{Role.UNKNOWN, Role.USER})
+                .authorities(new Role[]{Role.UNKNOWN, Role.USER})
                 .build();
 
         userRepository.save(entity);

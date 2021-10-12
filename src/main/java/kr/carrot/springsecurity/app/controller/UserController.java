@@ -4,10 +4,9 @@ import kr.carrot.springsecurity.app.dto.common.CommonResponse;
 import kr.carrot.springsecurity.app.dto.LoginDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.service.UserService;
-import kr.carrot.springsecurity.security.jwt.JwtUtils;
+import kr.carrot.springsecurity.security.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 

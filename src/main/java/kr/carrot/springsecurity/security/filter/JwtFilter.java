@@ -2,12 +2,11 @@ package kr.carrot.springsecurity.security.filter;
 
 import kr.carrot.springsecurity.security.jwt.JwtAuthToken;
 import kr.carrot.springsecurity.security.jwt.JwtAuthenticationProvider;
-import kr.carrot.springsecurity.security.jwt.JwtUtils;
+import kr.carrot.springsecurity.security.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;

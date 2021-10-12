@@ -19,9 +19,11 @@ public class TokenEntity {
     private Long id;
 
     private String refreshToken;
+    private String salt;
 
     @Builder
-    private TokenEntity(String refreshToken) {
+    private TokenEntity(String refreshToken, String salt) {
         this.refreshToken = refreshToken;
+        this.salt = salt;
     }
 }

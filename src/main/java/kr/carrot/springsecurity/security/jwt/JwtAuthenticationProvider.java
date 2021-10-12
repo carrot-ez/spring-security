@@ -1,6 +1,5 @@
 package kr.carrot.springsecurity.security.jwt;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import kr.carrot.springsecurity.security.exception.InvalidJwtTokenException;
@@ -8,18 +7,15 @@ import kr.carrot.springsecurity.security.exception.JwtTokenTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.security.Key;
-import java.util.Collection;
 import java.util.Date;
 
 @Slf4j
 public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken> {
 
-    private static final String AUTHORITY_ROLE = "role";
     private final static long ACCESS_TOKEN_VALID_TIME = 1000L * 60 * 30; // 30분
     private final static long REFRESH_TOKEN_VALID_TIME = 1000L * 60 * 60 * 3; // 3시간
 
@@ -33,15 +29,15 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
     }
 
     @Override
-    public JwtAuthToken createAuthToken(String username, Collection<? extends GrantedAuthority> authorities, TokenType tokenType) {
+    public JwtAuthToken createAuthToken(String username, String salt, TokenType tokenType) {
 
         if (tokenType == TokenType.ACCESS_TOKEN) {
             Date expiredDate = new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_TIME);
-            return new JwtAuthToken(username, authorities, expiredDate, key);
+            return new JwtAuthToken(username, salt, expiredDate, key);
         } //
         else if (tokenType == TokenType.REFRESH_TOKEN) {
             Date expiredDate = new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME);
-            return new JwtAuthToken(username, authorities, expiredDate, key);
+            return new JwtAuthToken(username, salt, expiredDate, key);
         } //
         else {
             throw new JwtTokenTypeException();
@@ -61,7 +57,6 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
         }
 
         // get user details
-        Claims claims = authToken.getClaims();
         String username = authToken.getUsername();
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -71,13 +66,13 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public JwtAuthToken refreshingAccessToken(String refreshToken) {
+    public JwtAuthToken refreshingAccessToken(String refreshToken, String salt) {
 
+        // get username
         JwtAuthToken jwtAuthToken = new JwtAuthToken(refreshToken, key);
-
         String username = jwtAuthToken.getUsername();
-        Collection<? extends GrantedAuthority> authorities = userDetailsService.loadUserByUsername(username).getAuthorities();
 
-        return createAuthToken(username, authorities, TokenType.ACCESS_TOKEN);
+        // create new token
+        return createAuthToken(username, salt, TokenType.ACCESS_TOKEN);
     }
 }

@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -65,13 +66,16 @@ public class UserService {
         }
 
         // generate tokens
-        String accessToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), userEntity.getAuthorities(), TokenType.ACCESS_TOKEN).getToken();
-        String refreshToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), userEntity.getAuthorities(), TokenType.REFRESH_TOKEN).getToken();
+        String salt = UUID.randomUUID().toString();
+        String accessToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), salt, TokenType.ACCESS_TOKEN).getToken();
+        String refreshToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), salt, TokenType.REFRESH_TOKEN).getToken();
 
         // save refresh token
         TokenEntity tokenEntity = TokenEntity.builder()
                 .refreshToken(refreshToken)
+                .salt(salt)
                 .build();
+
         tokenRepository.save(tokenEntity);
 
         return new TokenResponseDto(accessToken, refreshToken);
@@ -81,13 +85,19 @@ public class UserService {
     public TokenResponseDto refreshingToken(Optional<String> token) {
 
         if (token.isPresent()) {
-            String refreshToken = token.get();
-            String savedRefreshToken = tokenRepository.findByRefreshToken(refreshToken)
-                    .orElseThrow()
-                    .getRefreshToken();
 
+            // find refresh token in db
+            String refreshToken = token.get();
+            TokenEntity refreshTokenEntity = tokenRepository.findByRefreshToken(refreshToken)
+                    .orElseThrow();
+            String savedRefreshToken = refreshTokenEntity.getRefreshToken();
+            String salt = refreshTokenEntity.getSalt();
+
+            // compare refresh tokens (client <-> server)
             if (savedRefreshToken.equals(refreshToken)) {
-                String accessToken = jwtAuthTokenProvider.refreshingAccessToken(refreshToken).getToken();
+
+                // success to match tokens -> send new access token / current refresh token
+                String accessToken = jwtAuthTokenProvider.refreshingAccessToken(refreshToken, salt).getToken();
                 return new TokenResponseDto(accessToken, refreshToken);
             }
         }

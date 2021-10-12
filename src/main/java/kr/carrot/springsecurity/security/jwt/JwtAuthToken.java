@@ -1,31 +1,34 @@
 package kr.carrot.springsecurity.security.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Header;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import kr.carrot.springsecurity.security.utils.HashingUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.security.Key;
-import java.util.*;
+import java.util.Date;
+import java.util.Optional;
 
 @Slf4j
 public class JwtAuthToken implements AuthToken<Claims> {
 
     public static final String USERNAME = "username";
+    private static final String SALT = "tlas";
 
     private final String token;
     private final Key key; // java.security.Key
 
-    private static final String AUTHORITY_ROLE = "role";
 
     public JwtAuthToken(String token, Key key) {
         this.token = token;
         this.key = key;
     }
 
-    public JwtAuthToken(String username, Collection<? extends GrantedAuthority> authorities, Date expiredDate, Key key) {
+    public JwtAuthToken(String username, String salt, Date expiredDate, Key key) {
         this.key = key;
-        this.token = generateToken(username, authorities, expiredDate).get();
+        this.token = generateToken(username, salt, expiredDate).get();
     }
 
     @Override
@@ -56,14 +59,11 @@ public class JwtAuthToken implements AuthToken<Claims> {
         return getClaims().get(USERNAME, String.class);
     }
 
-    public Collection<? extends GrantedAuthority> getRoles() {
-
-        Claims claims = getClaims();
-
-        return claims.get(AUTHORITY_ROLE, HashSet.class);
+    public String getEncryptedSalt() {
+        return getClaims().get(SALT, String.class);
     }
 
-    private Optional<String> generateToken(String username, Collection<? extends GrantedAuthority> authorities, Date expiredDate) {
+    private Optional<String> generateToken(String username, String salt, Date expiredDate) {
 
         Date now = new Date();
 
@@ -72,7 +72,7 @@ public class JwtAuthToken implements AuthToken<Claims> {
                 .setIssuedAt(now)
                 .setExpiration(expiredDate)
                 .claim(USERNAME, username)
-                .claim(AUTHORITY_ROLE, authorities)
+                .claim(SALT, HashingUtils.encryptSha256(salt))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
