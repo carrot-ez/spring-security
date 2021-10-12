@@ -15,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.Optional;
 
 @Service
@@ -40,7 +39,7 @@ public class UserService {
         UserEntity userEntity = UserEntity.builder()
                 .username(username)
                 .password(encodedPassword)
-                .roles(new Role[] {Role.USER, Role.UNKNOWN})
+                .authorities(new Role[] {Role.USER, Role.UNKNOWN})
                 .email(email)
                 .build();
 
@@ -66,8 +65,8 @@ public class UserService {
         }
 
         // generate tokens
-        String accessToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), userEntity.getRoles(), TokenType.ACCESS_TOKEN).getToken();
-        String refreshToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), userEntity.getRoles(), TokenType.REFRESH_TOKEN).getToken();
+        String accessToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), userEntity.getAuthorities(), TokenType.ACCESS_TOKEN).getToken();
+        String refreshToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), userEntity.getAuthorities(), TokenType.REFRESH_TOKEN).getToken();
 
         // save refresh token
         TokenEntity tokenEntity = TokenEntity.builder()

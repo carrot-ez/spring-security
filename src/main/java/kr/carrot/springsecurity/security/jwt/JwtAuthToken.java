@@ -1,19 +1,12 @@
 package kr.carrot.springsecurity.security.jwt;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.SecurityException;
-import kr.carrot.springsecurity.app.dto.UserDto;
-import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.security.Key;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.*;
 
 @Slf4j
 public class JwtAuthToken implements AuthToken<Claims> {
@@ -30,22 +23,22 @@ public class JwtAuthToken implements AuthToken<Claims> {
         this.key = key;
     }
 
-    public JwtAuthToken(String username, String[] roles, Date expiredDate, Key key) {
+    public JwtAuthToken(String username, Collection<? extends GrantedAuthority> authorities, Date expiredDate, Key key) {
         this.key = key;
-        this.token = generateToken(username, roles, expiredDate).get();
+        this.token = generateToken(username, authorities, expiredDate).get();
     }
 
     @Override
     public boolean validate() {
 
-        Claims claim = getData();
+        Claims claim = getClaims();
 
         return claim != null // not null
                 && claim.getExpiration().after(new Date()); // and not expired
     }
 
     @Override
-    public Claims getData() {
+    public Claims getClaims() {
 
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -59,18 +52,18 @@ public class JwtAuthToken implements AuthToken<Claims> {
         return this.token;
     }
 
-    public String getUsername(Claims claims) {
-        return claims.get(USERNAME, String.class);
+    public String getUsername() {
+        return getClaims().get(USERNAME, String.class);
     }
 
-    public String[] getRoles(Claims claims) {
+    public Collection<? extends GrantedAuthority> getRoles() {
 
-        return Arrays.stream(claims.get(AUTHORITY_ROLE, ArrayList.class).toArray())
-                .map(Object::toString)
-                .toArray(String[]::new);
+        Claims claims = getClaims();
+
+        return claims.get(AUTHORITY_ROLE, HashSet.class);
     }
 
-    private Optional<String> generateToken(String username, String[] roles, Date expiredDate) {
+    private Optional<String> generateToken(String username, Collection<? extends GrantedAuthority> authorities, Date expiredDate) {
 
         Date now = new Date();
 
@@ -79,7 +72,7 @@ public class JwtAuthToken implements AuthToken<Claims> {
                 .setIssuedAt(now)
                 .setExpiration(expiredDate)
                 .claim(USERNAME, username)
-                .claim(AUTHORITY_ROLE, roles)
+                .claim(AUTHORITY_ROLE, authorities)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 

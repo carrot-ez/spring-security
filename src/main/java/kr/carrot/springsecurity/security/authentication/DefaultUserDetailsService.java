@@ -2,13 +2,11 @@ package kr.carrot.springsecurity.security.authentication;
 
 import kr.carrot.springsecurity.app.entity.UserEntity;
 import kr.carrot.springsecurity.app.repository.UserRepository;
-import kr.carrot.springsecurity.security.jwt.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +26,7 @@ public class DefaultUserDetailsService implements UserDetailsService {
         return User.builder()
                 .username(userEntity.getUsername())
                 .password(userEntity.getPassword())
-                .authorities(userEntity.getRoles())
+                .authorities(userEntity.getAuthorities())
                 .build();
     }
 }

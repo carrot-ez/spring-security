@@ -5,11 +5,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -30,23 +30,23 @@ public class UserEntity {
     @ElementCollection
     @CollectionTable
     @Enumerated(EnumType.STRING)
-    private List<Role> roles = new ArrayList<>();
+    private List<Role> authorities = new ArrayList<>();
 
     @Column(nullable = false, length = 100)
     private String email;
 
     @Builder
-    private UserEntity(Long id, String username, String password, String email, Role[] roles) {
+    private UserEntity(Long id, String username, String password, String email, Role[] authorities) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.email = email;
-        this.roles = Arrays.asList(roles);
+        this.authorities = Arrays.asList(authorities);
     }
 
-    public String[] getRoles() {
-        return roles.stream()
-                .map(Role::getCode)
-                .toArray(String[]::new);
+    public Set<SimpleGrantedAuthority> getAuthorities() {
+        return authorities.stream()
+                .map(e -> new SimpleGrantedAuthority(e.getCode()))
+                .collect(Collectors.toSet());
     }
 }

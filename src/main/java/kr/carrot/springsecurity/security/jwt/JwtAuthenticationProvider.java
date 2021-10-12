@@ -33,15 +33,15 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
     }
 
     @Override
-    public JwtAuthToken createAuthToken(String username, String[] roles, TokenType tokenType) {
+    public JwtAuthToken createAuthToken(String username, Collection<? extends GrantedAuthority> authorities, TokenType tokenType) {
 
         if (tokenType == TokenType.ACCESS_TOKEN) {
             Date expiredDate = new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_TIME);
-            return new JwtAuthToken(username, roles, expiredDate, key);
+            return new JwtAuthToken(username, authorities, expiredDate, key);
         } //
         else if (tokenType == TokenType.REFRESH_TOKEN) {
             Date expiredDate = new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME);
-            return new JwtAuthToken(username, roles, expiredDate, key);
+            return new JwtAuthToken(username, authorities, expiredDate, key);
         } //
         else {
             throw new JwtTokenTypeException();
@@ -61,8 +61,8 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
         }
 
         // get user details
-        Claims claims = authToken.getData();
-        String username = authToken.getUsername(claims);
+        Claims claims = authToken.getClaims();
+        String username = authToken.getUsername();
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         // set authentication true
@@ -75,16 +75,9 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
 
         JwtAuthToken jwtAuthToken = new JwtAuthToken(refreshToken, key);
 
-        Claims claims = jwtAuthToken.getData();
-        String username = jwtAuthToken.getUsername(claims);
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        String username = jwtAuthToken.getUsername();
+        Collection<? extends GrantedAuthority> authorities = userDetailsService.loadUserByUsername(username).getAuthorities();
 
-        // get roles
-        String[] roles = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .toArray(String[]::new);
-
-        // TODO: String[] roles -> Collection<? extends GrantedAuthority>
-        return createAuthToken(username, roles, TokenType.ACCESS_TOKEN);
+        return createAuthToken(username, authorities, TokenType.ACCESS_TOKEN);
     }
 }
