@@ -19,6 +19,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserController {
 
+    public static final String X_REFRESH_TOKEN = "X-Refresh-Token";
+
     private final UserService userService;
 
     @GetMapping("/")
@@ -45,19 +47,19 @@ public class UserController {
 
 
     @PostMapping("/api/v1/login")
-    public CommonResponse<?> login(@RequestBody LoginDto loginDto) {
+    public CommonResponse<TokenResponseDto> login(@RequestBody LoginDto loginDto) {
 
         TokenResponseDto tokens = userService.login(loginDto);
         
         return CommonResponse.success(HttpStatus.OK.value(), tokens);
     }
 
-    @PostMapping("api/v1/token")
-    public CommonResponse<?> refreshingToken(HttpServletRequest request) {
+    @PostMapping("/api/v1/token")
+    public CommonResponse<TokenResponseDto> refreshingToken(HttpServletRequest request) {
 
-        Optional<String> token = JwtUtils.resolveToken(request, "X-Refresh-Token");
-        userService.refreshingToken(token);
+        Optional<String> token = JwtUtils.resolveToken(request, X_REFRESH_TOKEN);
+        TokenResponseDto tokenResponseDto = userService.refreshingToken(token);
 
-        return null;
+        return CommonResponse.success(HttpStatus.OK.value(), tokenResponseDto);
     }
 }

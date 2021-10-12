@@ -5,12 +5,10 @@ import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.entity.TokenEntity;
 import kr.carrot.springsecurity.app.entity.UserEntity;
 import kr.carrot.springsecurity.app.repository.TokenRepository;
+import kr.carrot.springsecurity.security.exception.InvalidJwtTokenException;
 import kr.carrot.springsecurity.security.exception.PasswordIncorrectException;
-import kr.carrot.springsecurity.security.jwt.AuthToken;
-import kr.carrot.springsecurity.security.jwt.JwtAuthenticationProvider;
-import kr.carrot.springsecurity.security.jwt.Role;
+import kr.carrot.springsecurity.security.jwt.*;
 import kr.carrot.springsecurity.app.repository.UserRepository;
-import kr.carrot.springsecurity.security.jwt.TokenType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -85,9 +83,16 @@ public class UserService {
 
         if (token.isPresent()) {
             String refreshToken = token.get();
-            TokenEntity tokenEntity = tokenRepository.findByRefreshToken(refreshToken)
-                    .orElseThrow();
+            String savedRefreshToken = tokenRepository.findByRefreshToken(refreshToken)
+                    .orElseThrow()
+                    .getRefreshToken();
+
+            if (savedRefreshToken.equals(refreshToken)) {
+                String accessToken = jwtAuthTokenProvider.refreshingAccessToken(refreshToken).getToken();
+                return new TokenResponseDto(accessToken, refreshToken);
+            }
         }
-        return null;
+
+        throw new InvalidJwtTokenException("refreshing token");
     }
 }

@@ -4,7 +4,13 @@ import io.jsonwebtoken.JwtException;
 
 public class InvalidJwtTokenException extends JwtException {
 
+    private static final String DEFAULT_MESSAGE = "Invalid Jwt Token Error ";
+
     public InvalidJwtTokenException() {
-        super("Invalid Jwt Token Error");
+        super(DEFAULT_MESSAGE);
+    }
+
+    public InvalidJwtTokenException(String message) {
+        super(DEFAULT_MESSAGE + message);
     }
 }

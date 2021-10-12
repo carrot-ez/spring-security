@@ -8,10 +8,12 @@ import kr.carrot.springsecurity.security.exception.JwtTokenTypeException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.security.Key;
+import java.util.Collection;
 import java.util.Date;
 
 @Slf4j
@@ -67,5 +69,22 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
         // authentication manager 또는 authentication provider에서 충분한 인증/인가가 이루어졌을때만 사용해야 하는 생성자.
         // method desc 참고
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
+
+    public JwtAuthToken refreshingAccessToken(String refreshToken) {
+
+        JwtAuthToken jwtAuthToken = new JwtAuthToken(refreshToken, key);
+
+        Claims claims = jwtAuthToken.getData();
+        String username = jwtAuthToken.getUsername(claims);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        // get roles
+        String[] roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toArray(String[]::new);
+
+        // TODO: String[] roles -> Collection<? extends GrantedAuthority>
+        return createAuthToken(username, roles, TokenType.ACCESS_TOKEN);
     }
 }
