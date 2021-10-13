@@ -15,8 +15,14 @@ import kr.carrot.springsecurity.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
 
 @Slf4j
 @RestController
@@ -48,35 +54,37 @@ public class AuthorizationController {
         return "success";
     }
 
+    @PostMapping("/api/v1/login")
+    public CommonResponse<TokenResponseDto> login(@RequestBody LoginDto loginDto) {
+
+        TokenResponseDto tokens = userService.login(loginDto);
+
+        return CommonResponse.success(HttpStatus.OK.value(), tokens);
+    }
+
     @PostMapping("/api/v1/client")
     @ResponseStatus(HttpStatus.CREATED)
     public CommonResponse<Object> saveClient(@QueryParams ClientInfoRequestDto requestDto) {
-
-        log.info("dto = {}", requestDto);
 
         ClientInfoResponseDto response = clientService.saveClient(requestDto);
 
         return CommonResponse.success(HttpStatus.CREATED.value(), response);
     }
 
-    @GetMapping("/api/v1/authorize")
-    @ResponseStatus(HttpStatus.FOUND)
-    public CommonResponse<AuthorizationResponseDto> authorize(@QueryParams AuthorizationRequestDto requestDto) {
+    @GetMapping("/api/v1/auth")
+    public ResponseEntity<Void> authorize(@QueryParams AuthorizationRequestDto requestDto) {
 
-        // todo: impl logic
-        AuthorizationResponseDto authorize = clientService.authorize(requestDto);
+        AuthorizationResponseDto auth = clientService.authorize(requestDto);
 
-        return CommonResponse.success(HttpStatus.FOUND.value(), authorize);
+        URI uri = UriComponentsBuilder.fromUriString(auth.getRedirectUri())
+                .queryParam("code", auth.getCode())
+                .build().toUri();
+
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(uri)
+                .build();
     }
 
-
-    @PostMapping("/api/v1/login")
-    public CommonResponse<TokenResponseDto> login(@RequestBody LoginDto loginDto) {
-
-        TokenResponseDto tokens = userService.login(loginDto);
-        
-        return CommonResponse.success(HttpStatus.OK.value(), tokens);
-    }
 
     @PostMapping("/api/v1/atoken")
     public CommonResponse<TokenResponseDto> accessToken(@QueryParams AccessTokenRequestDto requestDto) {

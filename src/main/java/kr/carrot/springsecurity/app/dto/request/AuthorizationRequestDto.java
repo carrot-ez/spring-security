@@ -5,9 +5,7 @@ import lombok.Data;
 @Data
 public class AuthorizationRequestDto {
 
-    private String responseType;
+    private String responseType; // authorization code 방식을 사용시 code
     private String clientId;
-    private String redirectUrl;
-    private String scope;
-    private String state;
+    private String redirectUri;
 }
