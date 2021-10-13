@@ -55,7 +55,7 @@ public class AuthorizationController {
     }
 
     @PostMapping("/api/v1/login")
-    public CommonResponse<TokenResponseDto> login(@RequestBody LoginDto loginDto) {
+    public CommonResponse<TokenResponseDto> login(@ModelAttribute LoginDto loginDto) {
 
         TokenResponseDto tokens = userService.login(loginDto);
 
