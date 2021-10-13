@@ -1,12 +1,14 @@
 package kr.carrot.springsecurity.app.service;
 
 import kr.carrot.springsecurity.app.dto.LoginDto;
+import kr.carrot.springsecurity.app.dto.request.RefreshTokenRequestDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.entity.TokenEntity;
 import kr.carrot.springsecurity.app.entity.UserEntity;
 import kr.carrot.springsecurity.app.repository.TokenRepository;
 import kr.carrot.springsecurity.security.exception.InvalidJwtTokenException;
 import kr.carrot.springsecurity.security.exception.PasswordIncorrectException;
+import kr.carrot.springsecurity.security.exception.RefreshTokenValidException;
 import kr.carrot.springsecurity.security.jwt.*;
 import kr.carrot.springsecurity.app.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
 
+    public static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthenticationProvider jwtAuthTokenProvider;
     private final UserRepository userRepository;
@@ -78,30 +81,34 @@ public class UserService {
 
         tokenRepository.save(tokenEntity);
 
-        return new TokenResponseDto(accessToken, refreshToken);
+        return new TokenResponseDto(accessToken, refreshToken, null, null);
     }
 
     @Transactional
-    public TokenResponseDto refreshingToken(Optional<String> token) {
+    public TokenResponseDto refreshingToken(RefreshTokenRequestDto requestDto) {
 
-        if (token.isPresent()) {
-
-            // find refresh token in db
-            String refreshToken = token.get();
-            TokenEntity refreshTokenEntity = tokenRepository.findByRefreshToken(refreshToken)
-                    .orElseThrow();
-            String savedRefreshToken = refreshTokenEntity.getRefreshToken();
-            String salt = refreshTokenEntity.getSalt();
-
-            // compare refresh tokens (client <-> server)
-            if (savedRefreshToken.equals(refreshToken)) {
-
-                // success to match tokens -> send new access token / current refresh token
-                String accessToken = jwtAuthTokenProvider.refreshingAccessToken(refreshToken, salt).getToken();
-                return new TokenResponseDto(accessToken, refreshToken);
-            }
+        if (!GRANT_TYPE_REFRESH_TOKEN.equals(requestDto.getGrantType())) {
+            throw new RefreshTokenValidException("grand type error");
         }
 
-        throw new InvalidJwtTokenException("refreshing token");
+        // TODO: add client id, client secret check logic
+
+        String refreshToken = requestDto.getRefreshToken();
+
+        TokenEntity refreshTokenEntity = tokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow();
+        String savedRefreshToken = refreshTokenEntity.getRefreshToken();
+        String salt = refreshTokenEntity.getSalt();
+
+        // compare refresh tokens (client <-> server)
+        if (savedRefreshToken.equals(refreshToken)) {
+
+            // success to match tokens -> send new access token / current refresh token
+            String accessToken = jwtAuthTokenProvider.refreshingAccessToken(refreshToken, salt).getToken();
+            return new TokenResponseDto(accessToken, refreshToken, null, null);
+        }
+
+
+        throw new RefreshTokenValidException("token refreshing failed");
     }
 }
