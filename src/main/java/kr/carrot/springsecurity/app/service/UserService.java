@@ -25,32 +25,11 @@ import java.util.UUID;
 public class UserService {
 
     public static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
+
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthenticationProvider jwtAuthTokenProvider;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
-
-    // TODO: DELETE TEST METHOD
-    public Long createTestData() {
-
-        String username = "carrot";
-        String password = "1234";
-        String role = "USER";
-        String email = "kian6245@gmail.com";
-
-        String encodedPassword = passwordEncoder.encode(password);
-
-        UserEntity userEntity = UserEntity.builder()
-                .username(username)
-                .password(encodedPassword)
-                .authorities(new Role[] {Role.USER, Role.UNKNOWN})
-                .email(email)
-                .build();
-
-        UserEntity entity = userRepository.save(userEntity);
-
-        return entity.getId();
-    }
 
     @Transactional
     public TokenResponseDto login(LoginDto loginDto) {

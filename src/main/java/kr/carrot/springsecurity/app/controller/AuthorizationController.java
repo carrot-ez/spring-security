@@ -39,16 +39,6 @@ public class AuthorizationController {
         return "spring-security index";
     }
 
-    @GetMapping("/test")
-    public String test() {
-
-        log.info("test");
-
-        Long id = userService.createTestData();
-
-        return "test-page: " + "create success, id = " + id;
-    }
-
     @GetMapping("/validate")
     public String validate() {
         return "success";
