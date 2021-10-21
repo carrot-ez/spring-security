@@ -39,18 +39,23 @@
 <body>
 
     <div class="container">
-        <form action="/api/v1/login" method="post">
-                <div class="row">
-                    <label for="username">ID</label>
-                    <input id="username" type="text" th:field="${loginDto.username}" />
-                </div>
-                <div class="row mt-4">
-                    <label for="password">PW</label>
-                    <input id="password" type="password" th:field="${loginDto.password}" />
-                </div>
-                <div class="row mt-8">
-                    <input type="submit" value="로그인"/>
-                </div>
+        <form th:action="@{/api/v1/login}" method="post" th:object="${loginDto}">
+            <div class="row">
+                <label for="username">ID</label>
+                <input id="username" type="text" th:field="${loginDto.username}" />
+            </div>
+            <div class="row mt-4">
+                <label for="password">PW</label>
+                <input id="password" type="password" th:field="${loginDto.password}" />
+            </div>
+            <div>
+                <input id="code" type="hidden" th:field="${loginDto.code}">
+                <input id="obj" type="hidden" th:field="${loginDto.obj}">
+            </div>
+
+            <div class="row mt-8">
+                <input type="submit" value="로그인"/>
+            </div>
         </form>
     </div>
 

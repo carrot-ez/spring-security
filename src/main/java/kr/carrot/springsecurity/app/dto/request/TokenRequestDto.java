@@ -3,10 +3,11 @@ package kr.carrot.springsecurity.app.dto.request;
 import lombok.Data;
 
 @Data
-public class AccessTokenRequestDto {
+public class TokenRequestDto {
 
     private String grantType; // authorization_code
     private String code;
     private String redirectUri;
     private String clientId;
+    private String clientSecret;
 }

@@ -1,6 +1,7 @@
 package kr.carrot.springsecurity.security.utils;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.junit.jupiter.api.Assertions.*;
 

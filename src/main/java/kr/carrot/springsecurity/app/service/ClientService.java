@@ -42,28 +42,12 @@ public class ClientService {
         return new ClientInfoResponseDto(entity.getClientId(), entity.getClientSecret(), entity.getRedirectUri());
     }
 
-    public boolean isCorrectAuthParam(AuthorizationRequestDto requestDto) {
+    public ClientInfoResponseDto retrieveClient(String clientId) {
 
-        // 필수값이 없는 경우
-        if (!StringUtils.hasText(requestDto.getResponseType())
-                || !StringUtils.hasText(requestDto.getClientId())
-                || !StringUtils.hasText(requestDto.getRedirectUri())) {
-            throw new InvalidRequestException();
-        }
+        ClientEntity entity = clientRepository.findByClientId(clientId)
+                .orElseThrow();
 
-        // response type = code
-        if (!RESPONSE_TYPE_CODE.equals(requestDto.getResponseType())) {
-            throw new UnSupportedResponseTypeException();
-        }
-
-        ClientEntity clientEntity = clientRepository.findByClientId(requestDto.getClientId())
-                .orElseThrow(InvalidRequestException::new);
-
-        if (!clientEntity.getRedirectUri().equals(requestDto.getRedirectUri())) {
-            throw new InvalidRequestException();
-        }
-
-        return true;
+        return new ClientInfoResponseDto(entity.getClientId(), entity.getClientSecret(), entity.getRedirectUri());
     }
 
     public AuthorizationResponseDto authorize(AuthorizationRequestDto requestDto) {
