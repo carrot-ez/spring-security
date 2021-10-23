@@ -1,17 +1,17 @@
 package kr.carrot.springsecurity.app.controller;
 
+import kr.carrot.springsecurity.annotation.QueryParams;
 import kr.carrot.springsecurity.app.dto.common.CommonResponse;
+import kr.carrot.springsecurity.app.dto.request.ClientInfoRequestDto;
 import kr.carrot.springsecurity.app.dto.response.ClientInfoResponseDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.service.ClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -19,10 +19,19 @@ import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/client")
+@RequestMapping("api/client/v1")
 public class ClientController {
 
     private final ClientService clientService;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public CommonResponse<Object> saveClient(@QueryParams ClientInfoRequestDto requestDto) {
+
+        ClientInfoResponseDto response = clientService.saveClient(requestDto);
+
+        return CommonResponse.success(HttpStatus.CREATED.value(), response);
+    }
 
     @GetMapping("/callback")
     public CommonResponse<TokenResponseDto> clientCallback(@RequestParam String code, String clientId) {

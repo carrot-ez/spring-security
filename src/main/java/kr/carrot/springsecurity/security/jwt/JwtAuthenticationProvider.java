@@ -29,15 +29,15 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
     }
 
     @Override
-    public JwtAuthToken createAuthToken(String username, String salt, TokenType tokenType) {
+    public JwtAuthToken createAuthToken(String username, String clientId, TokenType tokenType) {
 
         if (tokenType == TokenType.ACCESS_TOKEN) {
             Date expiredDate = new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_TIME);
-            return new JwtAuthToken(username, salt, expiredDate, key);
+            return new JwtAuthToken(username, clientId, expiredDate, key);
         } //
         else if (tokenType == TokenType.REFRESH_TOKEN) {
             Date expiredDate = new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME);
-            return new JwtAuthToken(username, salt, expiredDate, key);
+            return new JwtAuthToken(username, clientId, expiredDate, key);
         } //
         else {
             throw new JwtTokenTypeException();
@@ -66,13 +66,13 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
-    public JwtAuthToken refreshingAccessToken(String refreshToken, String salt) {
+    public JwtAuthToken refreshingAccessToken(String refreshToken, String clientId) {
 
         // get username
         JwtAuthToken jwtAuthToken = new JwtAuthToken(refreshToken, key);
         String username = jwtAuthToken.getUsername();
 
         // create new token
-        return createAuthToken(username, salt, TokenType.ACCESS_TOKEN);
+        return createAuthToken(username, clientId, TokenType.ACCESS_TOKEN);
     }
 }

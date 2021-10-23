@@ -2,6 +2,7 @@ package kr.carrot.springsecurity.app.service;
 
 import kr.carrot.springsecurity.app.dto.LoginDto;
 import kr.carrot.springsecurity.app.dto.request.RefreshTokenRequestDto;
+import kr.carrot.springsecurity.app.dto.request.TokenRequestDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.entity.TokenEntity;
 import kr.carrot.springsecurity.app.entity.UserEntity;
@@ -48,14 +49,13 @@ public class UserService {
         }
 
         // generate tokens
-        String salt = UUID.randomUUID().toString();
-        String accessToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), salt, TokenType.ACCESS_TOKEN).getToken();
-        String refreshToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), salt, TokenType.REFRESH_TOKEN).getToken();
+        String accessToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), loginDto.getClientId(), TokenType.ACCESS_TOKEN).getToken();
+        String refreshToken = jwtAuthTokenProvider.createAuthToken(userEntity.getUsername(), loginDto.getClientId(), TokenType.REFRESH_TOKEN).getToken();
 
         // save refresh token
         TokenEntity tokenEntity = TokenEntity.builder()
                 .refreshToken(refreshToken)
-                .salt(salt)
+                .clientId(loginDto.getClientId())
                 .build();
 
         tokenRepository.save(tokenEntity);
@@ -64,11 +64,14 @@ public class UserService {
     }
 
     @Transactional
-    public TokenResponseDto refreshingToken(RefreshTokenRequestDto requestDto) {
+    public TokenResponseDto accessToken(TokenRequestDto requestDto) {
 
-        if (!GRANT_TYPE_REFRESH_TOKEN.equals(requestDto.getGrantType())) {
-            throw new RefreshTokenValidException("grand type error");
-        }
+        // TODO: add client id, client secret check logic
+
+    }
+
+    @Transactional
+    public TokenResponseDto refreshingToken(TokenRequestDto requestDto) {
 
         // TODO: add client id, client secret check logic
 
@@ -77,13 +80,12 @@ public class UserService {
         TokenEntity refreshTokenEntity = tokenRepository.findByRefreshToken(refreshToken)
                 .orElseThrow();
         String savedRefreshToken = refreshTokenEntity.getRefreshToken();
-        String salt = refreshTokenEntity.getSalt();
 
         // compare refresh tokens (client <-> server)
         if (savedRefreshToken.equals(refreshToken)) {
 
             // success to match tokens -> send new access token / current refresh token
-            String accessToken = jwtAuthTokenProvider.refreshingAccessToken(refreshToken, salt).getToken();
+            String accessToken = jwtAuthTokenProvider.refreshingAccessToken(refreshToken, requestDto.getClientId()).getToken();
             return new TokenResponseDto(accessToken, refreshToken, null, null);
         }
 

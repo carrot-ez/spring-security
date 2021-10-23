@@ -10,4 +10,6 @@ public class TokenRequestDto {
     private String redirectUri;
     private String clientId;
     private String clientSecret;
+
+    private String refreshToken; // use grantType = refresh_token
 }

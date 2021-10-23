@@ -7,6 +7,6 @@ public class LoginDto {
 
     private String username;
     private String password;
-    private String code;
-    private Object obj;
+    private String clientId;
+    private String code; // use grantType = authorization_code
 }

@@ -25,6 +25,7 @@ import java.net.URI;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("api/oauth/v1")
 public class AuthorizationController {
 
     private final UserService userService;
@@ -42,7 +43,7 @@ public class AuthorizationController {
         return "success";
     }
 
-    @PostMapping("/api/v1/login")
+    @PostMapping("/login")
     public CommonResponse<TokenResponseDto> login(@ModelAttribute LoginDto loginDto) {
 
         log.info("logindto={}", loginDto);
@@ -52,16 +53,7 @@ public class AuthorizationController {
         return CommonResponse.success(HttpStatus.OK.value(), tokens);
     }
 
-    @PostMapping("/api/v1/client")
-    @ResponseStatus(HttpStatus.CREATED)
-    public CommonResponse<Object> saveClient(@QueryParams ClientInfoRequestDto requestDto) {
-
-        ClientInfoResponseDto response = clientService.saveClient(requestDto);
-
-        return CommonResponse.success(HttpStatus.CREATED.value(), response);
-    }
-
-    @GetMapping("/api/v1/auth")
+    @GetMapping("/auth")
     public ResponseEntity<Void> authorize(@QueryParams AuthorizationRequestDto requestDto) {
 
         AuthorizationResponseDto auth = clientService.authorize(requestDto);
@@ -77,13 +69,14 @@ public class AuthorizationController {
     }
 
 
-    @PostMapping("/api/v1/token")
+    @PostMapping("/token")
     public CommonResponse<TokenResponseDto> accessToken(@QueryParams TokenRequestDto requestDto) {
 
         TokenResponseDto responseDto = null;
 
         switch (requestDto.getGrantType()) {
             case "authorization_code":
+
                 break;
             case "refresh_token":
                 responseDto = userService.refreshingToken(requestDto);
@@ -91,15 +84,5 @@ public class AuthorizationController {
             default:
                 throw new InvalidGrantTypeException();
         }
-
-    }
-
-    @PostMapping("/api/v1/token")
-    public CommonResponse<TokenResponseDto> refreshToken(@QueryParams RefreshTokenRequestDto requestDto) {
-
-        // todo: request, response 변경 -> 로직 수정
-        TokenResponseDto tokenResponseDto = userService.refreshingToken(requestDto);
-
-        return CommonResponse.success(HttpStatus.OK.value(), tokenResponseDto);
     }
 }

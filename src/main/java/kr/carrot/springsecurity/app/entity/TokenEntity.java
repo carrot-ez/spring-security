@@ -18,12 +18,12 @@ public class TokenEntity {
     @GeneratedValue
     private Long id;
 
+    private String clientId;
     private String refreshToken;
-    private String salt;
 
     @Builder
-    private TokenEntity(String refreshToken, String salt) {
+    private TokenEntity(String refreshToken, String clientId) {
         this.refreshToken = refreshToken;
-        this.salt = salt;
+        this.clientId = clientId;
     }
 }

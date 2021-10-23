@@ -16,6 +16,7 @@ public class JwtAuthToken implements AuthToken<Claims> {
 
     public static final String USERNAME = "username";
     private static final String SALT = "tlas";
+    public static final String CLIENT_ID = "CLIENT_ID";
 
     private final String token;
     private final Key key; // java.security.Key
@@ -26,9 +27,9 @@ public class JwtAuthToken implements AuthToken<Claims> {
         this.key = key;
     }
 
-    public JwtAuthToken(String username, String salt, Date expiredDate, Key key) {
+    public JwtAuthToken(String username, String clientId, Date expiredDate, Key key) {
         this.key = key;
-        this.token = generateToken(username, salt, expiredDate).get();
+        this.token = generateToken(username, clientId, expiredDate).get();
     }
 
     @Override
@@ -59,11 +60,11 @@ public class JwtAuthToken implements AuthToken<Claims> {
         return getClaims().get(USERNAME, String.class);
     }
 
-    public String getEncryptedSalt() {
-        return getClaims().get(SALT, String.class);
+    public String getClientId() {
+        return getClaims().get(CLIENT_ID, String.class);
     }
 
-    private Optional<String> generateToken(String username, String salt, Date expiredDate) {
+    private Optional<String> generateToken(String username, String clientId, Date expiredDate) {
 
         Date now = new Date();
 
@@ -72,7 +73,7 @@ public class JwtAuthToken implements AuthToken<Claims> {
                 .setIssuedAt(now)
                 .setExpiration(expiredDate)
                 .claim(USERNAME, username)
-                .claim(SALT, HashingUtils.encryptSha256(salt))
+                .claim(CLIENT_ID, clientId)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
