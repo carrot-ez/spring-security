@@ -19,16 +19,31 @@ public class AuthorizationCodeEntity {
 
     private String code;
 
-    @OneToOne
-    @JoinColumn(name = "client_pk")
-    private ClientEntity clientId;
+    private String username;
+
+    private String clientId;
+
+    private String sessionId;
 
     private LocalDateTime expireDate;
 
     @Builder
-    private AuthorizationCodeEntity(String code, ClientEntity clientId, LocalDateTime expireDate) {
+    private AuthorizationCodeEntity(String code, String clientId, LocalDateTime expireDate, String username, String sessionId) {
         this.code = code;
         this.clientId = clientId;
         this.expireDate = expireDate;
+        this.username = username;
+        this.sessionId = sessionId;
+    }
+
+    public boolean isSameClient(String clientId) {
+        return this.clientId
+                .equals(clientId);
+    }
+
+    public boolean isExpired() {
+        LocalDateTime now = LocalDateTime.now();
+
+        return expireDate.isBefore(now);
     }
 }

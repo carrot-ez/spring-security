@@ -1,5 +1,6 @@
 package kr.carrot.springsecurity.security.config;
 
+import kr.carrot.springsecurity.app.repository.SessionRepository;
 import kr.carrot.springsecurity.security.authentication.DefaultUserDetailsService;
 import kr.carrot.springsecurity.security.jwt.JwtAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
@@ -15,9 +16,10 @@ public class JwtConfig {
     private String base64Secret;
 
     private final DefaultUserDetailsService defaultUserDetailsService;
+    private final SessionRepository sessionRepository;
 
     @Bean
     public JwtAuthenticationProvider jwtProvider() {
-        return new JwtAuthenticationProvider(base64Secret, defaultUserDetailsService);
+        return new JwtAuthenticationProvider(base64Secret, defaultUserDetailsService, sessionRepository);
     }
 }

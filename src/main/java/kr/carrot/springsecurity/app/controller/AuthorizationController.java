@@ -5,10 +5,6 @@ import kr.carrot.springsecurity.app.dto.LoginDto;
 import kr.carrot.springsecurity.app.dto.common.CommonResponse;
 import kr.carrot.springsecurity.app.dto.request.TokenRequestDto;
 import kr.carrot.springsecurity.app.dto.request.AuthorizationRequestDto;
-import kr.carrot.springsecurity.app.dto.request.ClientInfoRequestDto;
-import kr.carrot.springsecurity.app.dto.request.RefreshTokenRequestDto;
-import kr.carrot.springsecurity.app.dto.response.AuthorizationResponseDto;
-import kr.carrot.springsecurity.app.dto.response.ClientInfoResponseDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.service.ClientService;
 import kr.carrot.springsecurity.app.service.UserService;
@@ -16,11 +12,7 @@ import kr.carrot.springsecurity.security.exception.oauth2.InvalidGrantTypeExcept
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
 
 @Slf4j
 @RestController
@@ -43,32 +35,38 @@ public class AuthorizationController {
         return "success";
     }
 
+    /**
+     * client 접근 권한 확인
+     * @param requestDto
+     * @return
+     */
+    @GetMapping("/auth")
+    public CommonResponse<Boolean> authorize(@QueryParams AuthorizationRequestDto requestDto) {
+
+        // check request info
+        clientService.authorize(requestDto);
+
+        return CommonResponse.success(HttpStatus.OK.value(), true);
+    }
+
+    /**
+     * 로그인 API
+     * 로그인 후 ssession & authorization code 생성
+     * @param loginDto
+     * @return authorization code
+     */
     @PostMapping("/login")
-    public CommonResponse<TokenResponseDto> login(@ModelAttribute LoginDto loginDto) {
+    public CommonResponse<String> login(@ModelAttribute LoginDto loginDto) {
 
         log.info("logindto={}", loginDto);
 
-        TokenResponseDto tokens = userService.login(loginDto);
+        String authorizationCode = userService.login(loginDto);
 
-        return CommonResponse.success(HttpStatus.OK.value(), tokens);
-    }
-
-    @GetMapping("/auth")
-    public ResponseEntity<Void> authorize(@QueryParams AuthorizationRequestDto requestDto) {
-
-        AuthorizationResponseDto auth = clientService.authorize(requestDto);
-
-        URI uri = UriComponentsBuilder.fromUriString(auth.getRedirectUri())
-                .queryParam("code", auth.getCode())
-                .build()
-                .toUri();
-
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .location(uri)
-                .build();
+        return CommonResponse.success(HttpStatus.OK.value(), authorizationCode);
     }
 
 
+    // TODO: Authorization code 방식 개발중
     @PostMapping("/token")
     public CommonResponse<TokenResponseDto> accessToken(@QueryParams TokenRequestDto requestDto) {
 
@@ -76,13 +74,15 @@ public class AuthorizationController {
 
         switch (requestDto.getGrantType()) {
             case "authorization_code":
-
+                responseDto = userService.accessToken(requestDto);
                 break;
             case "refresh_token":
-                responseDto = userService.refreshingToken(requestDto);
+                responseDto = userService.refreshToken(requestDto);
                 break;
             default:
                 throw new InvalidGrantTypeException();
         }
+
+        return CommonResponse.success(HttpStatus.OK.value(), responseDto);
     }
 }

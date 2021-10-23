@@ -17,6 +17,7 @@ public class JwtAuthToken implements AuthToken<Claims> {
     public static final String USERNAME = "username";
     private static final String SALT = "tlas";
     public static final String CLIENT_ID = "CLIENT_ID";
+    public static final String SESSION_ID = "SESSION_ID";
 
     private final String token;
     private final Key key; // java.security.Key
@@ -27,9 +28,9 @@ public class JwtAuthToken implements AuthToken<Claims> {
         this.key = key;
     }
 
-    public JwtAuthToken(String username, String clientId, Date expiredDate, Key key) {
+    public JwtAuthToken(String sessionId, Date expiredDate, Key key) {
         this.key = key;
-        this.token = generateToken(username, clientId, expiredDate).get();
+        this.token = generateToken(sessionId, expiredDate).get();
     }
 
     @Override
@@ -56,15 +57,11 @@ public class JwtAuthToken implements AuthToken<Claims> {
         return this.token;
     }
 
-    public String getUsername() {
-        return getClaims().get(USERNAME, String.class);
+    public String getSessionId() {
+        return getClaims().get(SESSION_ID, String.class);
     }
 
-    public String getClientId() {
-        return getClaims().get(CLIENT_ID, String.class);
-    }
-
-    private Optional<String> generateToken(String username, String clientId, Date expiredDate) {
+    private Optional<String> generateToken(String sessionId, Date expiredDate) {
 
         Date now = new Date();
 
@@ -72,8 +69,7 @@ public class JwtAuthToken implements AuthToken<Claims> {
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuedAt(now)
                 .setExpiration(expiredDate)
-                .claim(USERNAME, username)
-                .claim(CLIENT_ID, clientId)
+                .claim(SESSION_ID, sessionId)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 

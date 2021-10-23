@@ -50,7 +50,7 @@ public class ClientService {
         return new ClientInfoResponseDto(entity.getClientId(), entity.getClientSecret(), entity.getRedirectUri());
     }
 
-    public AuthorizationResponseDto authorize(AuthorizationRequestDto requestDto) {
+    public void authorize(AuthorizationRequestDto requestDto) {
 
         // 필수값이 없는 경우
         if (!StringUtils.hasText(requestDto.getResponseType())
@@ -70,17 +70,5 @@ public class ClientService {
         if (!clientEntity.getRedirectUri().equals(requestDto.getRedirectUri())) {
             throw new InvalidRequestException();
         }
-
-        // generate & save authorization code
-        String code = UUID.randomUUID().toString();
-
-        AuthorizationCodeEntity codeEntity = AuthorizationCodeEntity.builder()
-                .code(code)
-                .expireDate(LocalDateTime.now().plusMinutes(3L))
-                .clientId(clientEntity)
-                .build();
-        authorizationCodeRepository.save(codeEntity);
-
-        return new AuthorizationResponseDto(code, clientEntity.getRedirectUri());
     }
 }

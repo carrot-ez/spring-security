@@ -2,6 +2,8 @@ package kr.carrot.springsecurity.security.jwt;
 
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import kr.carrot.springsecurity.app.entity.SessionEntity;
+import kr.carrot.springsecurity.app.repository.SessionRepository;
 import kr.carrot.springsecurity.security.exception.InvalidJwtTokenException;
 import kr.carrot.springsecurity.security.exception.JwtTokenTypeException;
 import lombok.extern.slf4j.Slf4j;
@@ -21,23 +23,25 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
 
     private final Key key;
     private final UserDetailsService userDetailsService;
+    private final SessionRepository sessionRepository;
 
-    public JwtAuthenticationProvider(String base64Secret, UserDetailsService userDetailsService) {
+    public JwtAuthenticationProvider(String base64Secret, UserDetailsService userDetailsService, SessionRepository sessionRepository) {
         byte[] keyBytes = Decoders.BASE64.decode(base64Secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.userDetailsService = userDetailsService;
+        this.sessionRepository = sessionRepository;
     }
 
     @Override
-    public JwtAuthToken createAuthToken(String username, String clientId, TokenType tokenType) {
+    public JwtAuthToken createAuthToken(String sessionId, TokenType tokenType) {
 
         if (tokenType == TokenType.ACCESS_TOKEN) {
             Date expiredDate = new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALID_TIME);
-            return new JwtAuthToken(username, clientId, expiredDate, key);
+            return new JwtAuthToken(sessionId, expiredDate, key);
         } //
         else if (tokenType == TokenType.REFRESH_TOKEN) {
             Date expiredDate = new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALID_TIME);
-            return new JwtAuthToken(username, clientId, expiredDate, key);
+            return new JwtAuthToken(sessionId, expiredDate, key);
         } //
         else {
             throw new JwtTokenTypeException();
@@ -56,8 +60,16 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
             throw new InvalidJwtTokenException();
         }
 
+        // get user from session
+        String sessionId = authToken.getSessionId();
+        SessionEntity sessionEntity = sessionRepository.findBySessionId(sessionId) // todo: change session service
+                .orElseThrow();
+        if (sessionEntity.isExpired()) {
+            throw new RuntimeException("session expired"); // todo: change exception type
+        }
+
         // get user details
-        String username = authToken.getUsername();
+        String username = sessionEntity.getUsername();
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         // set authentication true
@@ -70,9 +82,11 @@ public class JwtAuthenticationProvider implements AuthTokenProvider<JwtAuthToken
 
         // get username
         JwtAuthToken jwtAuthToken = new JwtAuthToken(refreshToken, key);
-        String username = jwtAuthToken.getUsername();
+        String sessionId = jwtAuthToken.getSessionId();
+
+        // todo: check session expiration
 
         // create new token
-        return createAuthToken(username, clientId, TokenType.ACCESS_TOKEN);
+        return createAuthToken(sessionId, TokenType.ACCESS_TOKEN);
     }
 }

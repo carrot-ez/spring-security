@@ -6,7 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import java.util.Collection;
 
 public interface AuthTokenProvider<T> {
-    T createAuthToken(String username, String salt, TokenType tokenType);
+    T createAuthToken(String sessionId, TokenType tokenType);
     T convertAuthToken(String token);
     Authentication getAuthentication(T authToken);
 }
