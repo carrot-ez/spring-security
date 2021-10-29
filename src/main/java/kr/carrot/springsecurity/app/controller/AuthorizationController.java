@@ -14,6 +14,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -56,7 +58,7 @@ public class AuthorizationController {
      * @return authorization code
      */
     @PostMapping("/login")
-    public CommonResponse<String> login(@ModelAttribute LoginDto loginDto) {
+    public CommonResponse<String> login(@Valid @ModelAttribute LoginDto loginDto) {
 
         log.info("logindto={}", loginDto);
 
@@ -67,7 +69,7 @@ public class AuthorizationController {
 
 
     // TODO: Authorization code 방식 개발중
-    @PostMapping("/token")
+    @GetMapping("/token")
     public CommonResponse<TokenResponseDto> accessToken(@QueryParams TokenRequestDto requestDto) {
 
         TokenResponseDto responseDto = null;

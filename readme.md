@@ -1,6 +1,38 @@
 # Spring Security
 
-spring security
+spring security project
+
+
+
+## API
+
+### 로그인
+
+요청
+
+| 항목 | 값                       |
+| ---- | ------------------------ |
+| URL  | POST /api/oauth/v1/login |
+
+요청항목
+
+| 이름     | 타입   | 필수 | 설명      |
+| -------- | ------ | ---- | --------- |
+| username | string | O    | 사용자ID  |
+| password | string | O    | 비밀번호  |
+| clientId | string | O    | Client ID |
+
+응답 예시
+
+```json
+{
+    "statusCode": 200,
+    "data": "60932928-8e5d-4604-85e4-247b71a7350d",
+    "error": null
+}
+```
+
+
 
 ## logback
 
