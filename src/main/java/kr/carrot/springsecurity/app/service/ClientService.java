@@ -29,6 +29,11 @@ public class ClientService {
 
     public ClientInfoResponseDto saveClient(ClientInfoRequestDto clientInfo) {
 
+        String clientId = clientInfo.getClientId();
+        if (clientRepository.findByClientId(clientId).isPresent()) {
+            throw new RuntimeException("이미 client id가 존재합니다."); // todo: change exception type
+        }
+
         String uuid = UUID.randomUUID().toString();
 
         ClientEntity entity = ClientEntity.builder()
