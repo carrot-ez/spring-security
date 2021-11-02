@@ -1,7 +1,7 @@
 package kr.carrot.springsecurity.app.controller;
 
 import kr.carrot.springsecurity.annotation.QueryParams;
-import kr.carrot.springsecurity.app.constant.Constant;
+import kr.carrot.springsecurity.app.constant.Constants;
 import kr.carrot.springsecurity.app.dto.LoginDto;
 import kr.carrot.springsecurity.app.dto.common.CommonResponse;
 import kr.carrot.springsecurity.app.dto.request.AuthorizationRequestDto;
@@ -81,10 +81,10 @@ public class AuthorizationController {
         TokenResponseDto responseDto = null;
 
         switch (requestDto.getGrantType()) {
-            case Constant.GRANT_TYPE_AUTHORIZATION_CODE:
+            case Constants.GRANT_TYPE_AUTHORIZATION_CODE:
                 responseDto = userService.accessToken(requestDto);
                 break;
-            case Constant.GRANT_TYPE_REFRESH_TOKEN:
+            case Constants.GRANT_TYPE_REFRESH_TOKEN:
                 responseDto = userService.refreshToken(requestDto);
                 break;
             default:

@@ -1,6 +1,6 @@
 package kr.carrot.springsecurity.app.service;
 
-import kr.carrot.springsecurity.app.constant.Constant;
+import kr.carrot.springsecurity.app.constant.Constants;
 import kr.carrot.springsecurity.app.dto.request.AuthorizationRequestDto;
 import kr.carrot.springsecurity.app.dto.request.ClientInfoRequestDto;
 import kr.carrot.springsecurity.app.dto.response.ClientInfoResponseDto;
@@ -60,7 +60,7 @@ public class ClientService {
         }
 
         // response type = code
-        if (!Constant.RESPONSE_TYPE_CODE.equals(requestDto.getResponseType())) {
+        if (!Constants.RESPONSE_TYPE_CODE.equals(requestDto.getResponseType())) {
             throw new UnSupportedResponseTypeException();
         }
 
