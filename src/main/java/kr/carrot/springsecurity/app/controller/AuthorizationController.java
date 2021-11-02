@@ -68,8 +68,13 @@ public class AuthorizationController {
     }
 
 
-    // TODO: Authorization code 방식 개발중
-    @GetMapping("/token")
+
+    /**
+     * token 발행 API
+     * @param requestDto
+     * @return
+     */
+    @PostMapping("/token")
     public CommonResponse<TokenResponseDto> accessToken(@QueryParams TokenRequestDto requestDto) {
 
         TokenResponseDto responseDto = null;
