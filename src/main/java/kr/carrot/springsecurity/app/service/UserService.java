@@ -1,15 +1,14 @@
 package kr.carrot.springsecurity.app.service;
 
 import kr.carrot.springsecurity.app.dto.LoginDto;
-import kr.carrot.springsecurity.app.dto.request.RefreshTokenRequestDto;
 import kr.carrot.springsecurity.app.dto.request.TokenRequestDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.entity.*;
 import kr.carrot.springsecurity.app.repository.*;
-import kr.carrot.springsecurity.security.exception.InvalidJwtTokenException;
 import kr.carrot.springsecurity.security.exception.PasswordIncorrectException;
 import kr.carrot.springsecurity.security.exception.RefreshTokenValidException;
-import kr.carrot.springsecurity.security.jwt.*;
+import kr.carrot.springsecurity.security.jwt.JwtAuthenticationProvider;
+import kr.carrot.springsecurity.security.jwt.TokenType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,15 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
-    public static final String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
-    public static final int LOGIN_SUCCESS = 6000;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtAuthenticationProvider jwtAuthTokenProvider;

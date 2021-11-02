@@ -1,28 +1,23 @@
 package kr.carrot.springsecurity.app.service;
 
+import kr.carrot.springsecurity.app.constant.Constant;
 import kr.carrot.springsecurity.app.dto.request.AuthorizationRequestDto;
 import kr.carrot.springsecurity.app.dto.request.ClientInfoRequestDto;
-import kr.carrot.springsecurity.app.dto.response.AuthorizationResponseDto;
 import kr.carrot.springsecurity.app.dto.response.ClientInfoResponseDto;
-import kr.carrot.springsecurity.app.entity.AuthorizationCodeEntity;
 import kr.carrot.springsecurity.app.entity.ClientEntity;
 import kr.carrot.springsecurity.app.repository.AuthorizationCodeRepository;
 import kr.carrot.springsecurity.app.repository.ClientRepository;
 import kr.carrot.springsecurity.security.exception.oauth2.InvalidRequestException;
-import kr.carrot.springsecurity.security.exception.oauth2.Oauth2Exception;
 import kr.carrot.springsecurity.security.exception.oauth2.UnSupportedResponseTypeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ClientService {
-
-    public static final String RESPONSE_TYPE_CODE = "code";
 
     private final ClientRepository clientRepository;
     private final AuthorizationCodeRepository authorizationCodeRepository;
@@ -65,7 +60,7 @@ public class ClientService {
         }
 
         // response type = code
-        if (!RESPONSE_TYPE_CODE.equals(requestDto.getResponseType())) {
+        if (!Constant.RESPONSE_TYPE_CODE.equals(requestDto.getResponseType())) {
             throw new UnSupportedResponseTypeException();
         }
 
