@@ -75,7 +75,7 @@ public class AuthorizationController {
      * @param requestDto
      * @return
      */
-    @PostMapping("/token")
+    @GetMapping("/token")
     public CommonResponse<TokenResponseDto> accessToken(@QueryParams TokenRequestDto requestDto) {
 
         TokenResponseDto responseDto = null;

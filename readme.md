@@ -2,9 +2,44 @@
 
 spring security project
 
+## 신규 토큰발급 가이드
 
+1. [클라이언트 등록](#클라이언트 등록)
+2. [로그인](#로그인)
+   - 출력값인 code를 토큰발급시 사용
+3. [토큰발급](#토큰발급)
+   - grant_type="authorization_code" 로 요청 
 
-## API
+## APIs
+
+### 클라이언트 등록
+
+요청
+
+| 항목 | 값                  |
+| ---- | ------------------- |
+| URL  | POST /api/client/v1 |
+
+요청항목
+
+| 이름        | 타입   | 필수 | 설명                     |
+| ----------- | ------ | ---- | ------------------------ |
+| clientId    | string | O    | Client ID                |
+| redirectUri | string | O    | 요청 성공시 redirect URI |
+
+응답예시
+
+```json
+{
+    "statusCode": 201,
+    "data": {
+        "clientId": "1232",
+        "clientSecret": "56f829c9-4437-4da5-ae9d-0ed025f64622",
+        "redirectUri": "http://localhost:8080/"
+    },
+    "error": null
+}
+```
 
 ### 로그인
 
@@ -28,6 +63,40 @@ spring security project
 {
     "statusCode": 200,
     "data": "60932928-8e5d-4604-85e4-247b71a7350d",
+    "error": null
+}
+```
+
+### 토큰발급
+
+요청
+
+| 항목 | 값                      |
+| ---- | ----------------------- |
+| URL  | GET /api/oauth/v1/token |
+
+요청
+
+| 이름         | 타입   | 필수 | 설명                                   |
+| ------------ | ------ | ---- | -------------------------------------- |
+| grantType    | string | O    | 요청방식                               |
+| clientId     | string | O    | client ID                              |
+| clientSecret | string | O    |                                        |
+| redirectUri  | string | O    |                                        |
+| code         | string | X    | grant_type="authorization_code"인 경우 |
+| refreshToken | string | X    | grant_type="refresh_token"인 경우      |
+
+응답예시
+
+```json
+{
+    "statusCode": 200,
+    "data": {
+        "accessToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzU4NDA5NDgsImV4cCI6MTYzNTg0Mjc0OCwiU0VTU0lPTl9JRCI6ImJhZWFlZTUxLTQ0Y2YtNGY4Zi1iNGM0LTcxZDcyZGJiZWQ1ZiJ9.MCk9w2aLwgGxzOixIahG0eWeXonF6HdBwcGuufz3_2M",
+        "refreshToken": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MzU4NDA5NDgsImV4cCI6MTYzNTg1MTc0OCwiU0VTU0lPTl9JRCI6ImJhZWFlZTUxLTQ0Y2YtNGY4Zi1iNGM0LTcxZDcyZGJiZWQ1ZiJ9.yyBX5b_E4ukBWHMFCZGEclmyL_MAgZObwTikml4ndTQ",
+        "tokenType": null,
+        "expiresIn": null
+    },
     "error": null
 }
 ```
