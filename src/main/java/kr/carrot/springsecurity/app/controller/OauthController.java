@@ -8,7 +8,7 @@ import kr.carrot.springsecurity.app.dto.request.AuthorizationRequestDto;
 import kr.carrot.springsecurity.app.dto.request.TokenRequestDto;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.service.ClientService;
-import kr.carrot.springsecurity.app.service.UserService;
+import kr.carrot.springsecurity.app.service.OauthService;
 import kr.carrot.springsecurity.security.exception.oauth2.InvalidGrantTypeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +21,9 @@ import javax.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/oauth/v1")
-public class AuthorizationController {
+public class OauthController {
 
-    private final UserService userService;
+    private final OauthService oauthService;
     private final ClientService clientService;
 
     @GetMapping("/")
@@ -63,7 +63,7 @@ public class AuthorizationController {
 
         log.info("logindto={}", loginDto);
 
-        String authorizationCode = userService.login(loginDto);
+        String authorizationCode = oauthService.login(loginDto);
 
         return CommonResponse.success(HttpStatus.OK.value(), authorizationCode);
     }
@@ -82,10 +82,10 @@ public class AuthorizationController {
 
         switch (requestDto.getGrantType()) {
             case Constants.GRANT_TYPE_AUTHORIZATION_CODE:
-                responseDto = userService.accessToken(requestDto);
+                responseDto = oauthService.accessToken(requestDto);
                 break;
             case Constants.GRANT_TYPE_REFRESH_TOKEN:
-                responseDto = userService.refreshToken(requestDto);
+                responseDto = oauthService.refreshToken(requestDto);
                 break;
             default:
                 throw new InvalidGrantTypeException();

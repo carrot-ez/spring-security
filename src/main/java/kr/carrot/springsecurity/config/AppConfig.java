@@ -4,8 +4,6 @@ import kr.carrot.springsecurity.app.entity.ClientEntity;
 import kr.carrot.springsecurity.app.entity.UserEntity;
 import kr.carrot.springsecurity.app.repository.ClientRepository;
 import kr.carrot.springsecurity.app.repository.UserRepository;
-import kr.carrot.springsecurity.app.service.ClientService;
-import kr.carrot.springsecurity.app.service.UserService;
 import kr.carrot.springsecurity.security.jwt.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;

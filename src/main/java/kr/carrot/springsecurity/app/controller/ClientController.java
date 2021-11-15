@@ -19,7 +19,7 @@ import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("api/client/v1")
+@RequestMapping("api/clients/v1")
 public class ClientController {
 
     private final ClientService clientService;

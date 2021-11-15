@@ -44,7 +44,7 @@ public class UserEntity {
         this.authorities = Arrays.asList(authorities);
     }
 
-    public Set<SimpleGrantedAuthority> getAuthorities() {
+    public Set<SimpleGrantedAuthority> getGrantedAuthorities() {
         return authorities.stream()
                 .map(e -> new SimpleGrantedAuthority(e.getCode()))
                 .collect(Collectors.toSet());

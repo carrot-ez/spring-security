@@ -6,16 +6,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserDto {
 
     private String username;
-    private Role[] roles;
+    private String email;
+    private List<Role> authorities;
 
-    @Builder
-    private UserDto(String id, String username, Role[] roles) {
+    public UserDto(String username, String email, List<Role> authorities) {
         this.username = username;
-        this.roles = roles;
+        this.email = email;
+        this.authorities = authorities;
     }
 }

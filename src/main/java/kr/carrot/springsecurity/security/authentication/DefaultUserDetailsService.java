@@ -26,7 +26,7 @@ public class DefaultUserDetailsService implements UserDetailsService {
         return User.builder()
                 .username(userEntity.getUsername())
                 .password(userEntity.getPassword())
-                .authorities(userEntity.getAuthorities())
+                .authorities(userEntity.getGrantedAuthorities())
                 .build();
     }
 }
