@@ -6,9 +6,11 @@ import kr.carrot.springsecurity.app.repository.ClientRepository;
 import kr.carrot.springsecurity.app.repository.UserRepository;
 import kr.carrot.springsecurity.security.jwt.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.UUID;
@@ -50,6 +52,11 @@ public class AppConfig {
                 .build();
 
         clientRepository.save(clientEntity);
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 
 }

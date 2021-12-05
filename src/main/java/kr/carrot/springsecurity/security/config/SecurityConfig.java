@@ -27,7 +27,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private static final String[] PUBLIC_URLS = {
             "/", // index
-            "/api/oauth/v1/login", "/api/oauth/v1/token", // oauth
+            "/api/oauth/v1/**", // oauth
             "/api/clients/v1", // client
             "/api/users/v1/**" // login, logout
     };

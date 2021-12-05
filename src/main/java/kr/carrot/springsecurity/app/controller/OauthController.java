@@ -6,9 +6,11 @@ import kr.carrot.springsecurity.app.dto.LoginDto;
 import kr.carrot.springsecurity.app.dto.common.CommonResponse;
 import kr.carrot.springsecurity.app.dto.request.AuthorizationRequestDto;
 import kr.carrot.springsecurity.app.dto.request.TokenRequestDto;
+import kr.carrot.springsecurity.app.dto.response.AuthTokenKakao;
 import kr.carrot.springsecurity.app.dto.response.TokenResponseDto;
 import kr.carrot.springsecurity.app.service.ClientService;
 import kr.carrot.springsecurity.app.service.OauthService;
+import kr.carrot.springsecurity.security.authentication.Oauth2KakaoService;
 import kr.carrot.springsecurity.security.exception.oauth2.InvalidGrantTypeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +27,7 @@ public class OauthController {
 
     private final OauthService oauthService;
     private final ClientService clientService;
+    private final Oauth2KakaoService oauth2KakaoService;
 
     @GetMapping("/")
     public String index() {
@@ -40,6 +43,7 @@ public class OauthController {
 
     /**
      * client 접근 권한 확인
+     *
      * @param requestDto
      * @return
      */
@@ -55,6 +59,7 @@ public class OauthController {
     /**
      * 로그인 API
      * 로그인 후 ssession & authorization code 생성
+     *
      * @param loginDto
      * @return authorization code
      */
@@ -69,9 +74,9 @@ public class OauthController {
     }
 
 
-
     /**
      * token 발행 API
+     *
      * @param requestDto
      * @return
      */
@@ -92,5 +97,16 @@ public class OauthController {
         }
 
         return CommonResponse.success(HttpStatus.OK.value(), responseDto);
+    }
+
+    @GetMapping("/kakao")
+    public String kakaoLogin(String code) {
+        AuthTokenKakao authTokenKakao = oauth2KakaoService.callTokenApi(code);
+        log.info("kakao auth token = {}", authTokenKakao);
+
+        String userInfo = oauth2KakaoService.getUserInfo(authTokenKakao.getAccess_token());
+        log.info("kakao user info = {}", userInfo);
+
+        return userInfo;
     }
 }
