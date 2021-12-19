@@ -1,6 +1,5 @@
 package kr.carrot.springsecurity.security.authentication;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.carrot.springsecurity.app.dto.response.AuthTokenKakao;
@@ -26,7 +25,7 @@ public class Oauth2KakaoService {
     private final String kakaoRedirectUri = "http://localhost:3000/callback/kakao";
 
 
-    public AuthTokenKakao callTokenApi(String code) {
+    public AuthTokenKakao getToken(String code) {
 
         String grantType = "authorization_code";
 
@@ -49,7 +48,7 @@ public class Oauth2KakaoService {
             return authentication;
         }
         catch (RestClientException | JsonProcessingException e) {
-            throw new RuntimeException("failed kakao authorization");
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -67,7 +66,7 @@ public class Oauth2KakaoService {
 
             return response.getBody();
         } catch (RestClientException e) {
-            throw new RuntimeException("failed kakao user info");
+            throw new RuntimeException(e.getMessage());
         }
 
     }

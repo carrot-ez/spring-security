@@ -101,7 +101,7 @@ public class OauthController {
 
     @GetMapping("/kakao")
     public String kakaoLogin(String code) {
-        AuthTokenKakao authTokenKakao = oauth2KakaoService.callTokenApi(code);
+        AuthTokenKakao authTokenKakao = oauth2KakaoService.getToken(code);
         log.info("kakao auth token = {}", authTokenKakao);
 
         String userInfo = oauth2KakaoService.getUserInfo(authTokenKakao.getAccess_token());
